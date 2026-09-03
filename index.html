@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0754a6" />
+  <meta name="description" content="按月计算售电公司总收益及逐用户收益，支持本地保存、CSV导入导出和数据备份。" />
+  <title>电力交易收益看板</title>
+  <style>
+    :root {
+      --ink: #10243e;
+      --muted: #63758a;
+      --line: #dce6f0;
+      --blue: #0754a6;
+      --blue-2: #0f76d3;
+      --blue-soft: #edf6ff;
+      --green: #087c63;
+      --red: #c33c48;
+      --amber: #a86608;
+      --surface: #fff;
+      --page: #f3f7fb;
+      --shadow: 0 12px 40px rgba(24, 55, 87, .08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--page); color: var(--ink); font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; }
+    body { margin: 0; min-width: 320px; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .shell { width: min(1480px, 100%); margin: 0 auto; padding: 18px 22px 72px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .brand { display: flex; align-items: center; min-width: 0; gap: 12px; }
+    .logo { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: 16px; color: #fff; font-size: 25px; background: linear-gradient(145deg, #08458d, #1193d4); box-shadow: 0 12px 30px rgba(9, 82, 162, .22); }
+    .eyebrow { margin: 0 0 2px; color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+    h1 { margin: 0; font-size: clamp(20px, 3vw, 28px); letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .top-actions, .row-actions, .filters, .toolbar, .periods { display: flex; align-items: center; gap: 8px; }
+    .periods { overflow-x: auto; padding: 2px 1px 9px; margin-bottom: 8px; scrollbar-width: thin; }
+    .btn, .pill, .tab { border: 1px solid var(--line); color: var(--ink); background: #fff; border-radius: 12px; min-height: 40px; padding: 8px 13px; font-weight: 700; transition: .16s ease; }
+    .btn:hover, .pill:hover, .tab:hover { border-color: #9ebcda; transform: translateY(-1px); }
+    .btn.primary, .pill.active, .tab.active { color: #fff; border-color: var(--blue); background: var(--blue); }
+    .btn.danger { color: #fff; background: var(--red); border-color: var(--red); }
+    .btn.subtle { color: var(--blue); background: var(--blue-soft); border-color: #cfe4fa; }
+    .btn.small { min-height: 34px; padding: 6px 10px; font-size: 13px; }
+    .pill { flex: none; min-height: 34px; padding: 6px 12px; border-radius: 999px; font-size: 13px; }
+    .tabs { display: flex; width: fit-content; gap: 4px; margin-bottom: 16px; padding: 4px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 4px 18px rgba(24,55,87,.05); }
+    .tab { min-height: 34px; border: 0; padding: 6px 15px; background: transparent; }
+    .tab.active { background: var(--blue); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .hero { position: relative; overflow: hidden; margin-bottom: 14px; padding: 27px 30px; border-radius: 26px; color: #fff; background: linear-gradient(120deg, #063d86 0%, #0e69c9 64%, #11a597 120%); box-shadow: 0 24px 70px rgba(9,64,139,.18); }
+    .hero::after { content: ""; position: absolute; width: 360px; height: 360px; border-radius: 50%; right: -110px; top: -210px; border: 70px solid rgba(255,255,255,.07); }
+    .hero-grid { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; }
+    .hero-label { margin: 0 0 4px; color: #cde5ff; font-size: 14px; }
+    .hero-value { margin: 0; font-size: clamp(35px, 7vw, 56px); font-weight: 850; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+    .hero-note { max-width: 740px; margin: 9px 0 0; color: #d7ebff; line-height: 1.65; font-size: 14px; }
+    .badge { display: inline-flex; align-items: center; width: fit-content; min-height: 26px; margin-bottom: 13px; padding: 4px 9px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; background: rgba(255,255,255,.12); font-size: 12px; font-weight: 700; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .metric { padding: 18px; }
+    .metric-label { color: var(--muted); font-size: 13px; }
+    .metric-value { margin-top: 7px; font-size: clamp(20px, 2.5vw, 29px); font-weight: 820; font-variant-numeric: tabular-nums; }
+    .metric-value small { color: var(--muted); font-size: 11px; font-weight: 600; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(330px, .58fr); gap: 14px; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 20px; border-bottom: 1px solid #edf1f5; }
+    .card-head h2 { margin: 0; font-size: 18px; }
+    .card-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .card-body { padding: 18px 20px; }
+    .search { flex: 1; min-width: 190px; }
+    .input, .select { width: 100%; min-height: 40px; padding: 8px 11px; color: var(--ink); border: 1px solid #c8d8e7; border-radius: 11px; background: #fff; outline: none; }
+    .input:focus, .select:focus { border-color: var(--blue-2); box-shadow: 0 0 0 3px rgba(15,118,211,.12); }
+    .input.editable { border-color: #a9cbe9; background: #f0f7ff; }
+    .table-wrap { max-height: 585px; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { position: sticky; top: 0; z-index: 2; padding: 11px 10px; color: #56697c; background: #f6f9fc; text-align: left; white-space: nowrap; }
+    td { padding: 11px 10px; border-top: 1px solid #edf1f5; vertical-align: middle; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .profit-positive { color: var(--green); font-weight: 800; }
+    .profit-negative { color: var(--red); font-weight: 800; }
+    .status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; background: #8ca0b4; }
+    .status-dot.risk { background: #e08d1c; }
+    .mobile-list { display: none; padding: 12px; }
+    .user-card { margin-bottom: 9px; padding: 13px; border: 1px solid var(--line); border-radius: 15px; }
+    .user-card.negative { border-color: #f1c4c8; background: #fff6f6; }
+    .user-card-top { display: flex; justify-content: space-between; gap: 12px; }
+    .user-card h3 { margin: 0; font-size: 15px; }
+    .user-card p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .chart-list { display: grid; gap: 13px; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 84px; align-items: center; gap: 9px; font-size: 12px; }
+    .bar-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .bar-track { height: 11px; overflow: hidden; border-radius: 99px; background: #edf2f7; }
+    .bar-fill { height: 100%; min-width: 2px; border-radius: inherit; background: linear-gradient(90deg, #0754a6, #1592d0); }
+    .bar-fill.negative { background: linear-gradient(90deg, #d35a5f, #ef8c7b); }
+    .bar-value { text-align: right; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .notice { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; padding: 12px 15px; border: 1px solid #cfe4fa; border-radius: 16px; color: #154d83; background: var(--blue-soft); }
+    .notice-text { font-size: 13px; line-height: 1.5; }
+    .notice .row-actions { flex-wrap: wrap; justify-content: flex-end; }
+    .settings { margin-bottom: 14px; }
+    .form-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+    label { display: grid; gap: 6px; color: #324a62; font-size: 13px; font-weight: 750; }
+    label.wide { grid-column: span 2; }
+    .input-table { min-width: 1180px; }
+    .input-table .input { min-height: 34px; padding: 6px 8px; border-radius: 8px; }
+    .input-table .name-input { width: 260px; }
+    .input-table .contact-input { width: 92px; }
+    .input-table .number-input { width: 112px; text-align: right; }
+    .table-total { display: flex; justify-content: space-between; gap: 12px; padding: 14px 18px; border-top: 1px solid #edf1f5; background: #f8fafc; font-size: 13px; }
+    .icon-btn { width: 34px; height: 34px; border: 0; border-radius: 9px; color: var(--red); background: #fff1f1; font-size: 16px; }
+    .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .rule { padding: 20px; }
+    .rule-number { width: 34px; height: 34px; display: grid; place-items: center; margin-bottom: 13px; border-radius: 11px; color: #fff; background: var(--blue); font-weight: 850; }
+    .rule h2 { margin: 0 0 8px; font-size: 17px; }
+    .rule p { margin: 0; color: var(--muted); line-height: 1.75; font-size: 14px; }
+    .formula { grid-column: 1 / -1; }
+    .formula code { display: block; margin-top: 10px; padding: 14px; overflow-x: auto; border-radius: 12px; color: #154d83; background: var(--blue-soft); font-family: inherit; line-height: 1.7; }
+    .privacy { margin-top: 14px; padding: 13px 15px; color: #70501e; background: #fff8e9; border: 1px solid #f1dcae; border-radius: 14px; font-size: 13px; line-height: 1.65; }
+    .empty { padding: 42px 20px; color: var(--muted); text-align: center; }
+    .toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 50; max-width: calc(100vw - 28px); padding: 11px 16px; color: #fff; background: rgba(16,36,62,.94); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.2); transform: translate(-50%, 25px); opacity: 0; pointer-events: none; transition: .2s ease; font-size: 13px; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    @media (max-width: 1050px) {
+      .metric-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 700px) {
+      .shell { padding: 12px 12px 60px; }
+      .topbar { align-items: flex-start; }
+      .logo { width: 42px; height: 42px; border-radius: 14px; }
+      .top-actions { flex-direction: column; align-items: stretch; }
+      .top-actions .btn { min-height: 36px; padding: 6px 10px; font-size: 12px; }
+      .tabs { width: 100%; }
+      .tab { flex: 1; padding-inline: 8px; font-size: 13px; }
+      .hero { padding: 22px 18px; }
+      .hero-grid { align-items: flex-start; flex-direction: column; }
+      .hero-grid .btn { display: none; }
+      .metric { padding: 14px; }
+      .metric-value { font-size: 20px; }
+      .card-head { padding: 15px; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .filters { overflow-x: auto; }
+      .desktop-table { display: none; }
+      .mobile-list { display: grid; }
+      .bar-row { grid-template-columns: 82px 1fr 74px; }
+      .notice { align-items: flex-start; flex-direction: column; }
+      .notice .row-actions { justify-content: flex-start; }
+      .form-grid { grid-template-columns: 1fr; }
+      label.wide { grid-column: auto; }
+      .rules { grid-template-columns: 1fr; }
+      .table-total { flex-direction: column; }
+    }
+    @media (max-width: 430px) {
+      .metric-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .metric-label { font-size: 11px; }
+      .metric-value { font-size: 17px; }
+      .hero-value { font-size: 35px; }
+      h1 { font-size: 19px; }
+      .eyebrow { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">⚡</div>
+        <div>
+          <p class="eyebrow">海南万邦 · 月度经营工具</p>
+          <h1>电力交易收益看板</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="editCurrent">编辑本月</button>
+        <button class="btn primary" id="newMonth">＋ 新增月份</button>
+      </div>
+    </header>
+
+    <div class="periods" id="periods" aria-label="月份选择"></div>
+
+    <nav class="tabs" aria-label="页面栏目">
+      <button class="tab active" data-view="dashboard">收益看板</button>
+      <button class="tab" data-view="input">数据录入</button>
+      <button class="tab" data-view="rules">计算规则</button>
+    </nav>
+
+    <section class="panel active" id="dashboardPanel">
+      <div class="hero">
+        <div class="hero-grid">
+          <div>
+            <span class="badge" id="heroPeriod"></span>
+            <p class="hero-label">返还后公司收益</p>
+            <p class="hero-value" id="heroProfit"></p>
+            <p class="hero-note" id="heroNote"></p>
+          </div>
+          <button class="btn" id="heroEdit">编辑本月数据</button>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <article class="card metric"><div class="metric-label">结算电量</div><div class="metric-value" id="metricVolume"></div></article>
+        <article class="card metric"><div class="metric-label">零售电量电费</div><div class="metric-value" id="metricRetail"></div></article>
+        <article class="card metric"><div class="metric-label">批发结算成本</div><div class="metric-value" id="metricWholesale"></div></article>
+        <article class="card metric"><div class="metric-label">负收益用户</div><div class="metric-value" id="metricNegative"></div></article>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="card">
+          <div class="card-head">
+            <div><h2>逐用户收益</h2><p>默认把负收益用户排在最前</p></div>
+            <strong id="userCount"></strong>
+          </div>
+          <div class="card-body toolbar">
+            <input class="input search" id="search" placeholder="搜索用户或对接人" aria-label="搜索用户或对接人" />
+            <div class="filters" id="filters">
+              <button class="pill active" data-filter="all">全部</button>
+              <button class="pill" data-filter="negative">负收益</button>
+              <button class="pill" data-filter="positive">正收益</button>
+              <button class="pill" data-filter="risk">有风控</button>
+            </div>
+          </div>
+          <div class="table-wrap desktop-table">
+            <table>
+              <thead><tr><th>用户</th><th>对接人</th><th class="num">电量</th><th class="num">零售电量费</th><th class="num">分摊成本</th><th class="num">我司收益</th></tr></thead>
+              <tbody id="profitRows"></tbody>
+            </table>
+          </div>
+          <div class="mobile-list" id="profitCards"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><div><h2>主要收益贡献</h2><p>按收益绝对值显示前8户</p></div></div>
+          <div class="card-body"><div class="chart-list" id="chart"></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="inputPanel">
+      <div class="notice">
+        <div class="notice-text" id="message">修改后请点击“保存本月”。</div>
+        <div class="row-actions">
+          <button class="btn small" id="importCsv">导入CSV</button>
+          <button class="btn small" id="exportCsv">导出CSV</button>
+          <button class="btn small subtle" id="backupJson">备份全部数据</button>
+          <button class="btn small" id="restoreJson">恢复备份</button>
+          <button class="btn small primary" id="saveMonth">保存本月</button>
+        </div>
+      </div>
+      <input type="file" id="csvFile" class="hidden" accept=".csv,text/csv" />
+      <input type="file" id="jsonFile" class="hidden" accept=".json,application/json" />
+
+      <article class="card settings">
+        <div class="card-head"><div><h2>公司与结算参数</h2><p>按批零结算账单填写本月金额</p></div></div>
+        <div class="card-body form-grid">
+          <label>结算月份<input class="input editable" id="periodInput" type="month" /></label>
+          <label class="wide">售电公司<input class="input editable" id="companyInput" /></label>
+          <label>批发侧电量电费（元）<input class="input editable" id="wholesaleInput" type="number" step="0.01" /></label>
+          <label>资金分摊及返还（元）<input class="input editable" id="fundInput" type="number" step="0.01" /></label>
+          <label>超额收益门槛（元/MWh）<input class="input editable" id="thresholdInput" type="number" step="0.01" /></label>
+          <label>用户返还比例（%）<input class="input editable" id="userShareInput" type="number" step="0.01" min="0" max="100" /></label>
+          <label>售电公司保留比例（%）<input class="input editable" id="companyShareInput" type="number" step="0.01" min="0" max="100" /></label>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div><h2>逐用户月度数据</h2><p>蓝色输入框可编辑，收益会即时更新</p></div>
+          <button class="btn small" id="addUser">＋ 添加用户</button>
+        </div>
+        <div class="table-wrap">
+          <table class="input-table">
+            <thead><tr><th>用户</th><th>对接人</th><th class="num">签约价</th><th class="num">电量MWh</th><th class="num">套餐电费</th><th class="num">风控电费</th><th class="num">峰谷浮动</th><th class="num">分摊成本</th><th class="num">我司收益</th><th></th></tr></thead>
+            <tbody id="inputRows"></tbody>
+          </table>
+        </div>
+        <div class="table-total"><span id="inputTotal"></span><strong id="inputProfit"></strong></div>
+      </article>
+      <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn danger" id="deleteMonth">删除本月</button></div>
+      <div class="privacy">数据隐私：所有月份数据只保存在当前浏览器。更换手机、清理微信缓存或更换浏览器前，请先点击“备份全部数据”；需要换设备时再使用“恢复备份”。</div>
+    </section>
+
+    <section class="panel" id="rulesPanel">
+      <div class="rules">
+        <article class="card rule"><div class="rule-number">1</div><h2>零售电量电费</h2><p>套餐电费＋风险管控电费。峰谷浮动、绿证和退补不纳入本次公司收益口径。</p></article>
+        <article class="card rule"><div class="rule-number">2</div><h2>公司收益</h2><p>返还前公司收益＝零售电量电费－（批发侧电量电费＋资金分摊及返还）。</p></article>
+        <article class="card rule"><div class="rule-number">3</div><h2>超额收益回收</h2><p>公司收益均价高于门槛时，超出部分按设定比例返还用户，剩余部分由售电公司保留。</p></article>
+        <article class="card rule formula"><h2>逐用户收益分摊口径</h2><p>每户批发成本和超额收益返还均按该户结算电量占公司总电量的比例分摊。</p><code>每户我司收益＝该户套餐电费＋风控电费－该户分摊批发成本－该户超额收益返还</code><p id="reconcile"></p></article>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (() => {
+      'use strict';
+      const STORAGE_KEY = 'hainan-power-profit-dashboard-v1';
+      const defaultPeriod = new Date().toISOString().slice(0, 7);
+      const sample = {
+        period: defaultPeriod, companyName: '售电公司', wholesaleEnergyFee: 0,
+        fundAllocation: 0, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        users: [
+          {id:'sample-a', name:'示例用户A', contact:'', signedPrice:480, volumeMwh:0, packageFee:0, riskFee:0, touFee:0},
+          {id:'sample-b', name:'示例用户B', contact:'', signedPrice:470, volumeMwh:0, packageFee:0, riskFee:0, touFee:0}
+        ]
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const safe = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
+      const money = (value) => new Intl.NumberFormat('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}).format(safe(value));
+      const qty = (value) => new Intl.NumberFormat('zh-CN',{minimumFractionDigits:3,maximumFractionDigits:3}).format(safe(value));
+      const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const periodLabel = (period) => { const [y,m] = String(period).split('-'); return `${y}年${Number(m)}月`; };
+      const uid = () => `u-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+
+      function loadMonths() {
+        try {
+          const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+          return Array.isArray(value) && value.length ? value : [clone(sample)];
+        } catch { return [clone(sample)]; }
+      }
+
+      let savedMonths = loadMonths();
+      let draft = clone(savedMonths[0] || sample);
+      let currentView = 'dashboard';
+      let currentFilter = 'all';
+      let query = '';
+      let dirty = false;
+      let toastTimer;
+
+      function persist() {
+        const item = {...clone(draft), updatedAt:new Date().toISOString()};
+        savedMonths = [item, ...savedMonths.filter(m => m.period !== item.period)].sort((a,b) => b.period.localeCompare(a.period));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedMonths));
+        draft = clone(item);
+        dirty = false;
+        showToast(`${periodLabel(draft.period)}已保存在当前浏览器`);
+        render();
+      }
+
+      function calculate(month) {
+        const totalVolume = month.users.reduce((s,u) => s + safe(u.volumeMwh), 0);
+        const packageFee = month.users.reduce((s,u) => s + safe(u.packageFee), 0);
+        const riskFee = month.users.reduce((s,u) => s + safe(u.riskFee), 0);
+        const retailEnergyFee = packageFee + riskFee;
+        const wholesaleCost = safe(month.wholesaleEnergyFee) + safe(month.fundAllocation);
+        const profitBeforeRefund = retailEnergyFee - wholesaleCost;
+        const profitAverageBeforeRefund = totalVolume ? profitBeforeRefund / totalVolume : 0;
+        const excessBase = Math.max((profitAverageBeforeRefund - safe(month.threshold)) * totalVolume, 0);
+        const userRefundTotal = excessBase * safe(month.userShareRate);
+        const users = month.users.map(user => {
+          const ratio = totalVolume ? safe(user.volumeMwh) / totalVolume : 0;
+          const retailEnergyFee = safe(user.packageFee) + safe(user.riskFee);
+          const allocatedWholesale = wholesaleCost * ratio;
+          const userRefund = userRefundTotal * ratio;
+          const profitBeforeRefund = retailEnergyFee - allocatedWholesale;
+          const customerSettlementAfterRefund = retailEnergyFee - userRefund;
+          const profitAfterRefund = customerSettlementAfterRefund - allocatedWholesale;
+          return {...user, retailEnergyFee, allocatedWholesale, userRefund, profitBeforeRefund, customerSettlementAfterRefund, profitAfterRefund,
+            profitAverage: safe(user.volumeMwh) ? profitAfterRefund / safe(user.volumeMwh) : 0,
+            riskStatus: safe(user.volumeMwh) === 0 ? '无结算' : safe(user.riskFee) < 0 ? '触发上限' : safe(user.riskFee) > 0 ? '触发下限' : '区间内'};
+        });
+        const profitAfterRefund = profitBeforeRefund - userRefundTotal;
+        return {totalVolume, retailEnergyFee, wholesaleCost, profitBeforeRefund, profitAverageBeforeRefund, excessBase, userRefundTotal,
+          profitAfterRefund, profitAverageAfterRefund:totalVolume ? profitAfterRefund/totalVolume : 0,
+          negativeCount:users.filter(u => u.profitAfterRefund < 0).length, activeCount:users.filter(u => safe(u.volumeMwh) > 0).length, users};
+      }
+
+      function nextPeriod() {
+        const periods = [...savedMonths].map(m=>m.period).sort();
+        const base = periods[periods.length - 1] || new Date().toISOString().slice(0,7);
+        const [y,m] = base.split('-').map(Number); const d = new Date(y,m,1);
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      }
+
+      function blankMonth(period) {
+        return {period, companyName:draft.companyName, wholesaleEnergyFee:0, fundAllocation:0, threshold:safe(draft.threshold)||15,
+          userShareRate:safe(draft.userShareRate), companyShareRate:safe(draft.companyShareRate),
+          users:draft.users.map(u=>({id:uid(),name:u.name,contact:u.contact||'',signedPrice:safe(u.signedPrice),volumeMwh:0,packageFee:0,riskFee:0,touFee:0}))};
+      }
+
+      function setView(view) {
+        currentView = view;
+        document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+        ['dashboard','input','rules'].forEach(v => $(`${v}Panel`).classList.toggle('active', v === view));
+        if (view === 'input') fillSettings();
+      }
+
+      function showToast(text) {
+        const node = $('toast'); node.textContent = text; node.classList.add('show');
+        clearTimeout(toastTimer); toastTimer = setTimeout(()=>node.classList.remove('show'),2600);
+      }
+
+      function markDirty(text='有未保存的修改') { dirty = true; $('message').textContent = text; renderDashboard(); renderPeriods(); }
+
+      function filteredUsers(result) {
+        const needle = query.trim().toLowerCase();
+        return result.users.filter(u => !needle || `${u.name}${u.contact}`.toLowerCase().includes(needle))
+          .filter(u => currentFilter === 'all' || currentFilter === 'negative' && u.profitAfterRefund < 0 || currentFilter === 'positive' && u.profitAfterRefund > 0 || currentFilter === 'risk' && safe(u.riskFee) !== 0)
+          .sort((a,b)=>a.profitAfterRefund-b.profitAfterRefund);
+      }
+
+      function renderPeriods() {
+        $('periods').innerHTML = savedMonths.map(m => `<button class="pill ${m.period===draft.period?'active':''}" data-period="${esc(m.period)}">${esc(periodLabel(m.period))}${m.period===draft.period&&dirty?' *':''}</button>`).join('');
+      }
+
+      function renderDashboard() {
+        const r = calculate(draft); const visible = filteredUsers(r);
+        $('heroPeriod').textContent = `${periodLabel(draft.period)} · ${dirty?'待保存':'已保存'}`;
+        $('heroProfit').textContent = `¥${money(r.profitAfterRefund)}`;
+        $('heroNote').textContent = r.excessBase > 0 ? `已触发超额收益回收，应向用户返还 ${money(r.userRefundTotal)} 元。逐户收益合计与公司总收益自动对平。` : `低于 ${money(draft.threshold)} 元/MWh 门槛，本月无需返还。逐户收益合计与公司总收益自动对平。`;
+        $('metricVolume').innerHTML = `${qty(r.totalVolume)} <small>MWh</small>`;
+        $('metricRetail').innerHTML = `${money(r.retailEnergyFee)} <small>元</small>`;
+        $('metricWholesale').innerHTML = `${money(r.wholesaleCost)} <small>元</small>`;
+        $('metricNegative').innerHTML = `${r.negativeCount} <small>户</small>`;
+        $('userCount').textContent = `${r.negativeCount}户负收益 / ${r.activeCount}户有结算`;
+        $('profitRows').innerHTML = visible.length ? visible.map(u => `<tr><td title="${esc(u.name)}">${esc(u.name)}</td><td>${esc(u.contact||'-')}</td><td class="num">${qty(u.volumeMwh)}</td><td class="num">${money(u.retailEnergyFee)}</td><td class="num">${money(u.allocatedWholesale)}</td><td class="num ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}${money(u.profitAfterRefund)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty">没有符合条件的用户</td></tr>`;
+        $('profitCards').innerHTML = visible.length ? visible.map(u => `<article class="user-card ${u.profitAfterRefund<0?'negative':''}"><div class="user-card-top"><div><h3>${esc(u.name)}</h3><p>${esc(u.contact||'未填对接人')} · ${qty(u.volumeMwh)} MWh</p></div><strong class="${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}¥${money(u.profitAfterRefund)}</strong></div></article>`).join('') : `<div class="empty">没有符合条件的用户</div>`;
+        const chartUsers = [...r.users].filter(u=>safe(u.volumeMwh)>0).sort((a,b)=>Math.abs(b.profitAfterRefund)-Math.abs(a.profitAfterRefund)).slice(0,8);
+        const max = Math.max(...chartUsers.map(u=>Math.abs(u.profitAfterRefund)),1);
+        $('chart').innerHTML = chartUsers.map(u=>`<div class="bar-row"><span class="bar-label" title="${esc(u.name)}">${esc(u.name.replace(/（.*?）/g,'').slice(0,9))}</span><div class="bar-track"><div class="bar-fill ${u.profitAfterRefund<0?'negative':''}" style="width:${Math.max(Math.abs(u.profitAfterRefund)/max*100,1)}%"></div></div><span class="bar-value ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}${money(u.profitAfterRefund)}</span></div>`).join('') || `<div class="empty">暂无结算数据</div>`;
+        const sum = r.users.reduce((s,u)=>s+u.profitAfterRefund,0);
+        $('reconcile').textContent = `当前月份自动核对：逐户收益合计 ${money(sum)} 元，公司收益 ${money(r.profitAfterRefund)} 元，差额 ${money(sum-r.profitAfterRefund)} 元。`;
+      }
+
+      function fillSettings() {
+        $('periodInput').value = draft.period;
+        $('companyInput').value = draft.companyName || '';
+        $('wholesaleInput').value = safe(draft.wholesaleEnergyFee);
+        $('fundInput').value = safe(draft.fundAllocation);
+        $('thresholdInput').value = safe(draft.threshold);
+        $('userShareInput').value = safe(draft.userShareRate)*100;
+        $('companyShareInput').value = safe(draft.companyShareRate)*100;
+      }
+
+      function renderInputs() {
+        const r = calculate(draft);
+        $('inputRows').innerHTML = r.users.map(u => `<tr data-id="${esc(u.id)}">
+          <td><input class="input editable name-input" data-field="name" value="${esc(u.name)}" /></td>
+          <td><input class="input editable contact-input" data-field="contact" value="${esc(u.contact||'')}" /></td>
+          ${['signedPrice','volumeMwh','packageFee','riskFee','touFee'].map(k=>`<td><input class="input editable number-input" type="number" step="${k==='volumeMwh'?'.001':'.01'}" data-field="${k}" value="${safe(u[k])}" /></td>`).join('')}
+          <td class="num">${money(u.allocatedWholesale)}</td><td class="num ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${money(u.profitAfterRefund)}</td>
+          <td><button class="icon-btn" data-remove="${esc(u.id)}" aria-label="删除${esc(u.name)}">×</button></td></tr>`).join('');
+        $('inputTotal').textContent = `合计：${r.activeCount}户，${qty(r.totalVolume)} MWh`;
+        $('inputProfit').className = r.profitAfterRefund<0?'profit-negative':'profit-positive';
+        $('inputProfit').textContent = `返还后我司收益 ¥${money(r.profitAfterRefund)}`;
+      }
+
+      function render() { renderPeriods(); renderDashboard(); fillSettings(); renderInputs(); }
+
+      function updateMonthField(field, value) { draft[field] = value; markDirty(); renderInputs(); }
+      function selectMonth(period) { const found=savedMonths.find(m=>m.period===period); if(!found)return; draft=clone(found); dirty=false; $('message').textContent=`正在查看${periodLabel(period)}`; render(); }
+
+      function csvEscape(v) { return `"${String(v??'').replace(/"/g,'""')}"`; }
+      function download(filename, content, type) { const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); }
+      function parseCsvLine(line) { const out=[]; let cur='',quoted=false; for(let i=0;i<line.length;i++){const ch=line[i]; if(ch==='"'&&quoted&&line[i+1]==='"'){cur+='"';i++;}else if(ch==='"'){quoted=!quoted;}else if(ch===','&&!quoted){out.push(cur.trim());cur='';}else cur+=ch;} out.push(cur.trim()); return out; }
+
+      document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+      $('editCurrent').addEventListener('click',()=>setView('input'));
+      $('heroEdit').addEventListener('click',()=>setView('input'));
+      $('newMonth').addEventListener('click',()=>{draft=blankMonth(nextPeriod()); savedMonths=[draft,...savedMonths.filter(m=>m.period!==draft.period)]; dirty=true; $('message').textContent=`已创建${periodLabel(draft.period)}，填入账单数据后保存`; setView('input'); render();});
+      $('periods').addEventListener('click',e=>{const b=e.target.closest('[data-period]');if(b)selectMonth(b.dataset.period);});
+      $('search').addEventListener('input',e=>{query=e.target.value;renderDashboard();});
+      $('filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderDashboard();});
+      $('saveMonth').addEventListener('click',persist);
+      $('addUser').addEventListener('click',()=>{draft.users.push({id:uid(),name:'新用户',contact:'',signedPrice:0,volumeMwh:0,packageFee:0,riskFee:0,touFee:0});markDirty();renderInputs();});
+      $('inputRows').addEventListener('input',e=>{const input=e.target.closest('[data-field]');if(!input)return;const row=input.closest('[data-id]');const user=draft.users.find(u=>u.id===row.dataset.id);if(!user)return;const field=input.dataset.field;user[field]=input.type==='number'?safe(input.value):input.value;markDirty();renderDashboard();const r=calculate(draft);const ru=r.users.find(u=>u.id===user.id);row.children[7].textContent=money(ru.allocatedWholesale);row.children[8].textContent=money(ru.profitAfterRefund);row.children[8].className=`num ${ru.profitAfterRefund<0?'profit-negative':'profit-positive'}`;$('inputTotal').textContent=`合计：${r.activeCount}户，${qty(r.totalVolume)} MWh`;$('inputProfit').textContent=`返还后我司收益 ¥${money(r.profitAfterRefund)}`;});
+      $('inputRows').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;draft.users=draft.users.filter(u=>u.id!==b.dataset.remove);markDirty();renderInputs();});
+      [['periodInput','period',false],['companyInput','companyName',false],['wholesaleInput','wholesaleEnergyFee',true],['fundInput','fundAllocation',true],['thresholdInput','threshold',true]].forEach(([id,field,isNum])=>$(id).addEventListener('input',e=>updateMonthField(field,isNum?safe(e.target.value):e.target.value)));
+      $('userShareInput').addEventListener('input',e=>{const v=Math.min(100,Math.max(0,safe(e.target.value)))/100;draft.userShareRate=v;draft.companyShareRate=1-v;$('companyShareInput').value=(1-v)*100;markDirty();renderInputs();});
+      $('companyShareInput').addEventListener('input',e=>{const v=Math.min(100,Math.max(0,safe(e.target.value)))/100;draft.companyShareRate=v;draft.userShareRate=1-v;$('userShareInput').value=(1-v)*100;markDirty();renderInputs();});
+      $('deleteMonth').addEventListener('click',()=>{if(!confirm(`确定删除${periodLabel(draft.period)}吗？`))return;savedMonths=savedMonths.filter(m=>m.period!==draft.period);if(!savedMonths.length)savedMonths=[blankMonth(new Date().toISOString().slice(0,7))];draft=clone(savedMonths[0]);localStorage.setItem(STORAGE_KEY,JSON.stringify(savedMonths));dirty=false;render();showToast('该月份已删除');});
+      $('exportCsv').addEventListener('click',()=>{const rows=[['零售用户','对接人','签约固定价(元/MWh)','实际用电量(MWh)','套餐电费(元)','风险管控电费(元)','峰谷浮动电费(元)'],...draft.users.map(u=>[u.name,u.contact,u.signedPrice,u.volumeMwh,u.packageFee,u.riskFee,u.touFee])];download(`${draft.period}-用户收益录入.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');showToast('已导出本月CSV');});
+      $('importCsv').addEventListener('click',()=>$('csvFile').click());
+      $('csvFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;const lines=(await file.text()).replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean).map(parseCsvLine);if(lines.length<2){showToast('CSV中没有可导入的数据');return;}draft.users=lines.slice(1).map((r,i)=>({id:uid(),name:r[0]||`用户${i+1}`,contact:r[1]||'',signedPrice:safe(r[2]),volumeMwh:safe(r[3]),packageFee:safe(r[4]),riskFee:safe(r[5]),touFee:safe(r[6])}));e.target.value='';markDirty(`已导入${draft.users.length}个用户，请检查后保存`);renderInputs();});
+      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:1,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
+      $('restoreJson').addEventListener('click',()=>$('jsonFile').click());
+      $('jsonFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const value=JSON.parse(await file.text());if(!Array.isArray(value.months)||!value.months.length)throw new Error();savedMonths=value.months;draft=clone(savedMonths[0]);localStorage.setItem(STORAGE_KEY,JSON.stringify(savedMonths));dirty=false;render();showToast(`已恢复${savedMonths.length}个月份`);}catch{showToast('备份文件格式不正确');}e.target.value='';});
+
+      render();
+    })();
+  </script>
+</body>
+</html>
+
