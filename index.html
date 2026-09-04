@@ -252,7 +252,7 @@
         <article class="card metric"><div class="metric-label">负收益用户</div><div class="metric-value" id="metricNegative"></div></article>
       </div>
 
-      <h2 class="section-title">2026年3—7月趋势与对比</h2>
+      <h2 class="section-title">2026年1—7月趋势与对比</h2>
       <div class="trend-summary">
         <article class="card metric"><div class="metric-label">累计结算电量</div><div class="metric-value" id="trendTotalVolume"></div></article>
         <article class="card metric"><div class="metric-label">累计返还后收益</div><div class="metric-value" id="trendTotalProfit"></div></article>
@@ -279,12 +279,12 @@
         </article>
       </div>
       <article class="card" style="margin-bottom:14px">
-        <div class="card-head"><div><h2>五个月经营对比</h2><p>价格单位为元/MWh，金额单位为元；横向滚动可查看全部指标</p></div></div>
+          <div class="card-head"><div><h2>七个月经营对比</h2><p>价格单位为元/MWh，金额单位为元；横向滚动可查看全部指标</p></div></div>
         <div class="table-wrap comparison-wrap"><table class="comparison-table">
           <thead><tr><th>月份</th><th class="num">有结算用户</th><th class="num">电量</th><th class="num">零售均价</th><th class="num">公司批发成本均价</th><th class="num">市场结算均价</th><th class="num">用电侧日前均价</th><th class="num">返还前收益</th><th class="num">用户返还</th><th class="num">返还后收益</th><th class="num">返还后收益均价</th><th class="num">负收益用户</th></tr></thead>
           <tbody id="comparisonRows"></tbody><tfoot id="comparisonTotal"></tfoot>
         </table></div>
-        <div class="card-body"><div class="source-strip"><strong>数据口径：</strong>零售数据来自各月零售账单；批发成本来自结算单或电费发票；市场结算价和日前价来自海南电力现货市场结算月度价格披露。3月批发成本为发票倒算值，详见当月成本说明。</div></div>
+        <div class="card-body"><div class="source-strip"><strong>数据口径：</strong>零售数据来自各月零售账单；批发成本来自售电公司交易结算依据；市场结算价和日前价来自海南电力现货市场结算月度价格披露。金额和逐户收益按同一口径自动核对。</div></div>
       </article>
 
       <article class="card info-card">
@@ -414,8 +414,8 @@
   <script>
     (() => {
       'use strict';
-      const STORAGE_KEY = 'hainan-power-profit-dashboard-v5';
-      const LEGACY_STORAGE_KEYS = ['hainan-power-profit-dashboard-v4','hainan-power-profit-dashboard-v3'];
+      const STORAGE_KEY = 'hainan-power-profit-dashboard-v6';
+      const LEGACY_STORAGE_KEYS = ['hainan-power-profit-dashboard-v5','hainan-power-profit-dashboard-v4','hainan-power-profit-dashboard-v3'];
       const defaultPeriod = '2026-07';
       const sample = {
         period: defaultPeriod, companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 255381.39,
@@ -537,12 +537,47 @@
         ]
       };
 
+      const februarySample = {
+        period: '2026-02', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 67533.08,
+        fundAllocation: 1561.85, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: 344.157, dayAheadPrice: 346.269, marketSettlementPrice: 383.294,
+        costBasis: '2026-2售电公司交易结算依据：电量电费67533.08元，资金分摊及返还1561.85元。',
+        sourceNote: '数据来源：2026-2.pdf；2月零售账单.xls；26-02.pdf',
+        users: [
+          {id:'feb-01', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:3.901, packageFee:1830.94, riskFee:-186.19, touFee:0},
+          {id:'feb-02', name:'海南时代明珠酒店管理有限公司', contact:'钟时才', signedPrice:430, volumeMwh:15.673, packageFee:6580.29, riskFee:0, touFee:0},
+          {id:'feb-03', name:'海南骏捷汽车销售有限公司', contact:'张总', signedPrice:505, volumeMwh:4.775, packageFee:2327.00, riskFee:-313.75, touFee:0},
+          {id:'feb-04', name:'海口琼山朋辉商务酒店', contact:'钟时才', signedPrice:440, volumeMwh:4.772, packageFee:2046.48, riskFee:-34.49, touFee:0},
+          {id:'feb-05', name:'海南海的故事旅业开发有限公司', contact:'林平', signedPrice:450, volumeMwh:32.912, packageFee:14410.43, riskFee:-533.95, touFee:0},
+          {id:'feb-06', name:'海南好两点科技有限公司', contact:'黄', signedPrice:460, volumeMwh:82.847, packageFee:37019.87, riskFee:-2089.62, touFee:-16672.54},
+          {id:'feb-07', name:'海南轻筑酒店管理有限公司', contact:'钟时才', signedPrice:440, volumeMwh:5.450, packageFee:2337.21, riskFee:-39.36, touFee:0},
+          {id:'feb-08', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:2.394, packageFee:1085.52, riskFee:-76.15, touFee:0},
+          {id:'feb-09', name:'临高临城龙源咖啡厅', contact:'林平', signedPrice:468, volumeMwh:3.794, packageFee:1722.71, riskFee:-123.07, touFee:0},
+          {id:'feb-10', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:10.196, packageFee:4622.90, riskFee:-324.02, touFee:0}
+        ]
+      };
+
+      const januarySample = {
+        period: '2026-01', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 55541.09,
+        fundAllocation: 2519.03, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: 386.758, dayAheadPrice: 391.907, marketSettlementPrice: 382.368,
+        costBasis: '2026-1售电公司交易结算依据：电量电费55541.09元，资金分摊及返还2519.03元。',
+        sourceNote: '数据来源：2026-1.pdf；1月零售账单.xls；26-01.pdf',
+        users: [
+          {id:'jan-01', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:5.571, packageFee:2642.42, riskFee:-299.23, touFee:0},
+          {id:'jan-02', name:'海南好两点科技有限公司', contact:'黄', signedPrice:460, volumeMwh:102.930, packageFee:46505.30, riskFee:-3212.47, touFee:-16512.71},
+          {id:'jan-03', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:5.719, packageFee:2595.08, riskFee:-189.64, touFee:0},
+          {id:'jan-04', name:'临高临城龙源咖啡厅', contact:'林平', signedPrice:468, volumeMwh:2.714, packageFee:1245.80, riskFee:-104.28, touFee:0},
+          {id:'jan-05', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:11.697, packageFee:5307.68, riskFee:-387.86, touFee:0}
+        ]
+      };
+
       const marchSample = {
-        period: '2026-03', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: null,
-        fundAllocation: null, wholesaleCostOverride: 124893.50, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        period: '2026-03', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 121717.08,
+        fundAllocation: 3176.42, wholesaleCostOverride: null, threshold: 15, userShareRate: .7, companyShareRate: .3,
         generatorDayAheadPrice: 375.901, dayAheadPrice: 381.003, marketSettlementPrice: 389.523,
-        costBasis: '3月未提供交易结算单，批发成本按发票倒算：零售电量电费122709.70元＋发票应付差额2183.80元＝124893.50元；成本构成暂不拆分。',
-        sourceNote: '数据来源：3月电费发票.pdf；3月零售账单.xls；26-03.pdf',
+        costBasis: '2026-3售电公司交易结算依据：电量电费121717.08元，资金分摊及返还3176.42元。',
+        sourceNote: '数据来源：2026-3.pdf；3月零售账单.xls；26-03.pdf',
         users: [
           {id:'mar-01', name:'海南创新九鼎科技有限公司', contact:'钟时才', signedPrice:425, volumeMwh:38.169, packageFee:15979.22, riskFee:0, touFee:0},
           {id:'mar-02', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:6.080, packageFee:2873.68, riskFee:-268.55, touFee:0},
@@ -560,7 +595,7 @@
         ]
       };
 
-      const seedMonths = [sample, juneSample, maySample, aprilSample, marchSample];
+      const seedMonths = [sample, juneSample, maySample, aprilSample, marchSample, februarySample, januarySample];
 
       const $ = (id) => document.getElementById(id);
       const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -587,6 +622,13 @@
                 if (!month.costBasis) mergedMonth.costBasis = seed.costBasis;
                 if (!month.sourceNote || month.sourceNote === '2026-6.pdf；零售侧明细结果.xls') mergedMonth.sourceNote = seed.sourceNote;
                 if (!Array.isArray(month.users) || !month.users.length) mergedMonth.users = clone(seed.users);
+                if (month.period === '2026-03' && hasNumber(month.wholesaleCostOverride) && !hasNumber(month.wholesaleEnergyFee)) {
+                  mergedMonth.wholesaleEnergyFee = seed.wholesaleEnergyFee;
+                  mergedMonth.fundAllocation = seed.fundAllocation;
+                  mergedMonth.wholesaleCostOverride = null;
+                  mergedMonth.costBasis = seed.costBasis;
+                  mergedMonth.sourceNote = seed.sourceNote;
+                }
                 return mergedMonth;
               });
               const merged = [...enriched, ...seedMonths.filter(seed => !value.some(month => month.period === seed.period)).map(clone)]
@@ -696,7 +738,7 @@
       function trendMonths() {
         const byPeriod = new Map(savedMonths.map(month => [month.period, month]));
         byPeriod.set(draft.period, draft);
-        return [...byPeriod.values()].filter(month => month.period >= '2026-03' && month.period <= '2026-07')
+        return [...byPeriod.values()].filter(month => month.period >= '2026-01' && month.period <= '2026-07')
           .sort((a,b) => a.period.localeCompare(b.period)).map(month => ({month, result:calculate(month)}));
       }
 
@@ -714,7 +756,7 @@
         const min=Math.floor((rawMin-gap*.16)/10)*10, max=Math.ceil((rawMax+gap*.16)/10)*10;
         const x=i=>pad.l+(items.length===1?0:(width-pad.l-pad.r)*i/(items.length-1));
         const y=v=>pad.t+(max-v)*(height-pad.t-pad.b)/(max-min||1);
-        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="2026年3月至7月价格走势">`;
+        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="2026年1月至7月价格走势">`;
         for(let i=0;i<5;i++){const v=min+(max-min)*i/4, yy=y(v);svg+=`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#dce6f0"/><text x="${pad.l-9}" y="${yy+4}" text-anchor="end" font-size="11" fill="#63758a">${Math.round(v)}</text>`;}
         items.forEach((item,i)=>{svg+=`<text x="${x(i)}" y="${height-16}" text-anchor="middle" font-size="12" fill="#52677b">${Number(item.month.period.slice(5))}月</text>`;});
         series.forEach(s=>{
@@ -732,7 +774,7 @@
         const min=Math.min(0,...values), max=Math.max(0,...values), span=Math.max(max-min,1), floor=min-span*.12, ceil=max+span*.18;
         const y=v=>pad.t+(ceil-v)*(height-pad.t-pad.b)/(ceil-floor);
         const group=(width-pad.l-pad.r)/Math.max(items.length,1), bar=Math.min(28,group*.24), zeroY=y(0);
-        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="2026年3月至7月公司收益走势">`;
+        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="2026年1月至7月公司收益走势">`;
         for(let i=0;i<5;i++){const v=floor+(ceil-floor)*i/4, yy=y(v);svg+=`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#e4ebf2"/><text x="${pad.l-9}" y="${yy+4}" text-anchor="end" font-size="11" fill="#63758a">${Math.round(v/1000)}k</text>`;}
         svg+=`<line x1="${pad.l}" y1="${zeroY}" x2="${width-pad.r}" y2="${zeroY}" stroke="#6f8294" stroke-width="1.5"/>`;
         items.forEach((item,i)=>{
@@ -869,7 +911,7 @@
       $('exportCsv').addEventListener('click',()=>{const rows=[['零售用户','对接人','签约固定价(元/MWh)','实际用电量(MWh)','套餐电费(元)','风险管控电费(元)','峰谷浮动电费(元)'],...draft.users.map(u=>[u.name,u.contact,u.signedPrice,u.volumeMwh,u.packageFee,u.riskFee,u.touFee])];download(`${draft.period}-用户收益录入.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');showToast('已导出本月CSV');});
       $('importCsv').addEventListener('click',()=>$('csvFile').click());
       $('csvFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;const lines=(await file.text()).replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean).map(parseCsvLine);if(lines.length<2){showToast('CSV中没有可导入的数据');return;}draft.users=lines.slice(1).map((r,i)=>({id:uid(),name:r[0]||`用户${i+1}`,contact:r[1]||'',signedPrice:safe(r[2]),volumeMwh:safe(r[3]),packageFee:safe(r[4]),riskFee:safe(r[5]),touFee:safe(r[6])}));e.target.value='';markDirty(`已导入${draft.users.length}个用户，请检查后保存`);renderInputs();});
-      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:5,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
+      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:6,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
       $('restoreJson').addEventListener('click',()=>$('jsonFile').click());
       $('jsonFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const value=JSON.parse(await file.text());if(!Array.isArray(value.months)||!value.months.length)throw new Error();savedMonths=value.months;draft=clone(savedMonths[0]);localStorage.setItem(STORAGE_KEY,JSON.stringify(savedMonths));dirty=false;render();showToast(`已恢复${savedMonths.length}个月份`);}catch{showToast('备份文件格式不正确');}e.target.value='';});
 
