@@ -57,12 +57,24 @@
     .hero-note { max-width: 740px; margin: 9px 0 0; color: #d7ebff; line-height: 1.65; font-size: 14px; }
     .badge { display: inline-flex; align-items: center; width: fit-content; min-height: 26px; margin-bottom: 13px; padding: 4px 9px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; background: rgba(255,255,255,.12); font-size: 12px; font-weight: 700; }
     .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .section-title { margin: 20px 2px 10px; font-size: 16px; font-weight: 850; }
     .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
     .metric { padding: 18px; }
     .metric-label { color: var(--muted); font-size: 13px; }
     .metric-value { margin-top: 7px; font-size: clamp(20px, 2.5vw, 29px); font-weight: 820; font-variant-numeric: tabular-nums; }
     .metric-value small { color: var(--muted); font-size: 11px; font-weight: 600; }
     .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(330px, .58fr); gap: 14px; }
+    .info-card, .cost-card { margin-bottom: 14px; }
+    .info-grid { display: grid; grid-template-columns: 2fr 1fr repeat(4, 1fr); gap: 1px; overflow: hidden; border-radius: 14px; background: var(--line); }
+    .info-item { min-width: 0; padding: 14px; background: #fff; }
+    .info-label { color: var(--muted); font-size: 12px; }
+    .info-value { margin-top: 5px; overflow: hidden; font-size: 15px; font-weight: 800; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+    .cost-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .cost-item { padding: 15px; border: 1px solid #d8e7f4; border-radius: 14px; background: linear-gradient(145deg,#f8fbff,#edf6ff); }
+    .cost-item.total { color: #fff; border-color: var(--blue); background: linear-gradient(145deg,#06488f,#0f76d3); }
+    .cost-label { font-size: 12px; color: var(--muted); }
+    .cost-item.total .cost-label { color: #cfe8ff; }
+    .cost-value { margin-top: 7px; font-size: 20px; font-weight: 850; font-variant-numeric: tabular-nums; }
     .card-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 20px; border-bottom: 1px solid #edf1f5; }
     .card-head h2 { margin: 0; font-size: 18px; }
     .card-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
@@ -86,6 +98,9 @@
     .user-card-top { display: flex; justify-content: space-between; gap: 12px; }
     .user-card h3 { margin: 0; font-size: 15px; }
     .user-card p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .user-meta-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-top: 11px; }
+    .user-meta { padding: 8px; border-radius: 9px; color: var(--muted); background: #f4f7fa; font-size: 10px; }
+    .user-meta strong { display: block; margin-top: 3px; color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; }
     .chart-list { display: grid; gap: 13px; }
     .bar-row { display: grid; grid-template-columns: 110px 1fr 84px; align-items: center; gap: 9px; font-size: 12px; }
     .bar-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -101,13 +116,14 @@
     label { display: grid; gap: 6px; color: #324a62; font-size: 13px; font-weight: 750; }
     label.wide { grid-column: span 2; }
     .input-table { min-width: 1180px; }
+    .profit-table { min-width: 1560px; }
     .input-table .input { min-height: 34px; padding: 6px 8px; border-radius: 8px; }
     .input-table .name-input { width: 260px; }
     .input-table .contact-input { width: 92px; }
     .input-table .number-input { width: 112px; text-align: right; }
     .table-total { display: flex; justify-content: space-between; gap: 12px; padding: 14px 18px; border-top: 1px solid #edf1f5; background: #f8fafc; font-size: 13px; }
     .icon-btn { width: 34px; height: 34px; border: 0; border-radius: 9px; color: var(--red); background: #fff1f1; font-size: 16px; }
-    .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
     .rule { padding: 20px; }
     .rule-number { width: 34px; height: 34px; display: grid; place-items: center; margin-bottom: 13px; border-radius: 11px; color: #fff; background: var(--blue); font-weight: 850; }
     .rule h2 { margin: 0 0 8px; font-size: 17px; }
@@ -122,6 +138,9 @@
     @media (max-width: 1050px) {
       .metric-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .dashboard-grid { grid-template-columns: 1fr; }
+      .info-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .cost-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .rules { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
     @media (max-width: 700px) {
@@ -152,6 +171,8 @@
     }
     @media (max-width: 430px) {
       .metric-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .info-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .info-item:first-child { grid-column: 1 / -1; }
       .metric-label { font-size: 11px; }
       .metric-value { font-size: 17px; }
       .hero-value { font-size: 35px; }
@@ -197,12 +218,43 @@
         </div>
       </div>
 
+      <h2 class="section-title">核心经营指标</h2>
       <div class="metric-grid">
         <article class="card metric"><div class="metric-label">结算电量</div><div class="metric-value" id="metricVolume"></div></article>
         <article class="card metric"><div class="metric-label">零售电量电费</div><div class="metric-value" id="metricRetail"></div></article>
+        <article class="card metric"><div class="metric-label">零售结算均价</div><div class="metric-value" id="metricRetailAverage"></div></article>
         <article class="card metric"><div class="metric-label">批发结算成本</div><div class="metric-value" id="metricWholesale"></div></article>
+        <article class="card metric"><div class="metric-label">批发成本均价</div><div class="metric-value" id="metricWholesaleAverage"></div></article>
+        <article class="card metric"><div class="metric-label">返还前公司收益</div><div class="metric-value" id="metricProfitBefore"></div></article>
+        <article class="card metric"><div class="metric-label">返还前收益均价</div><div class="metric-value" id="metricProfitBeforeAverage"></div></article>
         <article class="card metric"><div class="metric-label">负收益用户</div><div class="metric-value" id="metricNegative"></div></article>
       </div>
+
+      <article class="card info-card">
+        <div class="card-head"><div><h2>结算基础信息</h2><p>公司、月份、用户范围与分成参数</p></div></div>
+        <div class="card-body"><div class="info-grid">
+          <div class="info-item"><div class="info-label">售电公司</div><div class="info-value" id="infoCompany"></div></div>
+          <div class="info-item"><div class="info-label">结算月份</div><div class="info-value" id="infoPeriod"></div></div>
+          <div class="info-item"><div class="info-label">用户总数</div><div class="info-value" id="infoTotalUsers"></div></div>
+          <div class="info-item"><div class="info-label">有结算用户</div><div class="info-value" id="infoActiveUsers"></div></div>
+          <div class="info-item"><div class="info-label">零电量用户</div><div class="info-value" id="infoZeroUsers"></div></div>
+          <div class="info-item"><div class="info-label">有风控用户</div><div class="info-value" id="infoRiskUsers"></div></div>
+          <div class="info-item"><div class="info-label">加权签约均价</div><div class="info-value" id="infoSignedAverage"></div></div>
+          <div class="info-item"><div class="info-label">超额收益门槛</div><div class="info-value" id="infoThreshold"></div></div>
+          <div class="info-item"><div class="info-label">用户返还比例</div><div class="info-value" id="infoUserShare"></div></div>
+          <div class="info-item"><div class="info-label">公司保留比例</div><div class="info-value" id="infoCompanyShare"></div></div>
+        </div></div>
+      </article>
+
+      <article class="card cost-card">
+        <div class="card-head"><div><h2>批发成本构成</h2><p>成本总额与度电成本自动计算</p></div></div>
+        <div class="card-body"><div class="cost-grid">
+          <div class="cost-item"><div class="cost-label">批发侧电量电费</div><div class="cost-value" id="costEnergy"></div></div>
+          <div class="cost-item"><div class="cost-label">资金分摊及返还</div><div class="cost-value" id="costFund"></div></div>
+          <div class="cost-item total"><div class="cost-label">批发成本合计</div><div class="cost-value" id="costTotal"></div></div>
+          <div class="cost-item total"><div class="cost-label">批发成本均价</div><div class="cost-value" id="costAverage"></div></div>
+        </div></div>
+      </article>
 
       <div class="dashboard-grid">
         <article class="card">
@@ -220,8 +272,8 @@
             </div>
           </div>
           <div class="table-wrap desktop-table">
-            <table>
-              <thead><tr><th>用户</th><th>对接人</th><th class="num">电量</th><th class="num">零售电量费</th><th class="num">分摊成本</th><th class="num">我司收益</th></tr></thead>
+            <table class="profit-table">
+              <thead><tr><th>用户</th><th>对接人</th><th class="num">签约价</th><th class="num">电量</th><th class="num">零售电量费</th><th class="num">零售结算均价</th><th class="num">分摊批发成本</th><th class="num">分摊成本均价</th><th class="num">用户返还</th><th class="num">我司收益</th><th class="num">收益均价</th><th>风控状态</th></tr></thead>
               <tbody id="profitRows"></tbody>
             </table>
           </div>
@@ -256,6 +308,8 @@
           <label class="wide">售电公司<input class="input editable" id="companyInput" /></label>
           <label>批发侧电量电费（元）<input class="input editable" id="wholesaleInput" type="number" step="0.01" /></label>
           <label>资金分摊及返还（元）<input class="input editable" id="fundInput" type="number" step="0.01" /></label>
+          <label>批发成本合计（自动）<input class="input" id="wholesaleTotalInput" disabled /></label>
+          <label>批发成本均价（自动）<input class="input" id="wholesaleAverageInput" disabled /></label>
           <label>超额收益门槛（元/MWh）<input class="input editable" id="thresholdInput" type="number" step="0.01" /></label>
           <label>用户返还比例（%）<input class="input editable" id="userShareInput" type="number" step="0.01" min="0" max="100" /></label>
           <label>售电公司保留比例（%）<input class="input editable" id="companyShareInput" type="number" step="0.01" min="0" max="100" /></label>
@@ -281,9 +335,10 @@
 
     <section class="panel" id="rulesPanel">
       <div class="rules">
-        <article class="card rule"><div class="rule-number">1</div><h2>零售电量电费</h2><p>套餐电费＋风险管控电费。峰谷浮动、绿证和退补不纳入本次公司收益口径。</p></article>
-        <article class="card rule"><div class="rule-number">2</div><h2>公司收益</h2><p>返还前公司收益＝零售电量电费－（批发侧电量电费＋资金分摊及返还）。</p></article>
-        <article class="card rule"><div class="rule-number">3</div><h2>超额收益回收</h2><p>公司收益均价高于门槛时，超出部分按设定比例返还用户，剩余部分由售电公司保留。</p></article>
+        <article class="card rule"><div class="rule-number">1</div><h2>零售电量电费</h2><p>套餐电费＋风险管控电费；零售结算均价＝零售电量电费÷结算电量。</p></article>
+        <article class="card rule"><div class="rule-number">2</div><h2>批发成本</h2><p>批发成本＝批发侧电量电费＋资金分摊及返还；批发成本均价＝批发成本÷结算电量。</p></article>
+        <article class="card rule"><div class="rule-number">3</div><h2>公司收益</h2><p>返还前公司收益＝零售电量电费－批发成本；收益均价＝公司收益÷结算电量。</p></article>
+        <article class="card rule"><div class="rule-number">4</div><h2>超额收益回收</h2><p>公司收益均价高于门槛时，超出部分按设定比例返还用户，剩余部分由售电公司保留。</p></article>
         <article class="card rule formula"><h2>逐用户收益分摊口径</h2><p>每户批发成本和超额收益返还均按该户结算电量占公司总电量的比例分摊。</p><code>每户我司收益＝该户套餐电费＋风控电费－该户分摊批发成本－该户超额收益返还</code><p id="reconcile"></p></article>
       </div>
     </section>
@@ -344,6 +399,9 @@
         const riskFee = month.users.reduce((s,u) => s + safe(u.riskFee), 0);
         const retailEnergyFee = packageFee + riskFee;
         const wholesaleCost = safe(month.wholesaleEnergyFee) + safe(month.fundAllocation);
+        const retailAverage = totalVolume ? retailEnergyFee / totalVolume : 0;
+        const wholesaleAverage = totalVolume ? wholesaleCost / totalVolume : 0;
+        const weightedSignedPrice = totalVolume ? month.users.reduce((s,u) => s + safe(u.signedPrice) * safe(u.volumeMwh), 0) / totalVolume : 0;
         const profitBeforeRefund = retailEnergyFee - wholesaleCost;
         const profitAverageBeforeRefund = totalVolume ? profitBeforeRefund / totalVolume : 0;
         const excessBase = Math.max((profitAverageBeforeRefund - safe(month.threshold)) * totalVolume, 0);
@@ -356,14 +414,20 @@
           const profitBeforeRefund = retailEnergyFee - allocatedWholesale;
           const customerSettlementAfterRefund = retailEnergyFee - userRefund;
           const profitAfterRefund = customerSettlementAfterRefund - allocatedWholesale;
-          return {...user, retailEnergyFee, allocatedWholesale, userRefund, profitBeforeRefund, customerSettlementAfterRefund, profitAfterRefund,
+          return {...user, retailEnergyFee, retailAverage:safe(user.volumeMwh) ? retailEnergyFee / safe(user.volumeMwh) : 0,
+            allocatedWholesale, allocatedWholesaleAverage:safe(user.volumeMwh) ? allocatedWholesale / safe(user.volumeMwh) : 0,
+            userRefund, profitBeforeRefund, customerSettlementAfterRefund, profitAfterRefund,
             profitAverage: safe(user.volumeMwh) ? profitAfterRefund / safe(user.volumeMwh) : 0,
             riskStatus: safe(user.volumeMwh) === 0 ? '无结算' : safe(user.riskFee) < 0 ? '触发上限' : safe(user.riskFee) > 0 ? '触发下限' : '区间内'};
         });
         const profitAfterRefund = profitBeforeRefund - userRefundTotal;
-        return {totalVolume, retailEnergyFee, wholesaleCost, profitBeforeRefund, profitAverageBeforeRefund, excessBase, userRefundTotal,
+        return {totalVolume, retailEnergyFee, retailAverage, wholesaleCost, wholesaleAverage, weightedSignedPrice, profitBeforeRefund, profitAverageBeforeRefund, excessBase, userRefundTotal,
           profitAfterRefund, profitAverageAfterRefund:totalVolume ? profitAfterRefund/totalVolume : 0,
-          negativeCount:users.filter(u => u.profitAfterRefund < 0).length, activeCount:users.filter(u => safe(u.volumeMwh) > 0).length, users};
+          negativeCount:users.filter(u => u.profitAfterRefund < 0).length,
+          activeCount:users.filter(u => safe(u.volumeMwh) > 0).length,
+          riskCount:users.filter(u => safe(u.volumeMwh) > 0 && safe(u.riskFee) !== 0).length,
+          zeroCount:users.filter(u => safe(u.volumeMwh) === 0).length,
+          users};
       }
 
       function nextPeriod() {
@@ -411,11 +475,32 @@
         $('heroNote').textContent = r.excessBase > 0 ? `已触发超额收益回收，应向用户返还 ${money(r.userRefundTotal)} 元。逐户收益合计与公司总收益自动对平。` : `低于 ${money(draft.threshold)} 元/MWh 门槛，本月无需返还。逐户收益合计与公司总收益自动对平。`;
         $('metricVolume').innerHTML = `${qty(r.totalVolume)} <small>MWh</small>`;
         $('metricRetail').innerHTML = `${money(r.retailEnergyFee)} <small>元</small>`;
+        $('metricRetailAverage').innerHTML = `${money(r.retailAverage)} <small>元/MWh</small>`;
         $('metricWholesale').innerHTML = `${money(r.wholesaleCost)} <small>元</small>`;
+        $('metricWholesaleAverage').innerHTML = `${money(r.wholesaleAverage)} <small>元/MWh</small>`;
+        $('metricProfitBefore').innerHTML = `${money(r.profitBeforeRefund)} <small>元</small>`;
+        $('metricProfitBeforeAverage').innerHTML = `${money(r.profitAverageBeforeRefund)} <small>元/MWh</small>`;
         $('metricNegative').innerHTML = `${r.negativeCount} <small>户</small>`;
+        $('infoCompany').textContent = draft.companyName || '-';
+        $('infoCompany').title = draft.companyName || '';
+        $('infoPeriod').textContent = periodLabel(draft.period);
+        $('infoTotalUsers').textContent = `${draft.users.length} 户`;
+        $('infoActiveUsers').textContent = `${r.activeCount} 户`;
+        $('infoZeroUsers').textContent = `${r.zeroCount} 户`;
+        $('infoRiskUsers').textContent = `${r.riskCount} 户`;
+        $('infoSignedAverage').textContent = `${money(r.weightedSignedPrice)} 元/MWh`;
+        $('infoThreshold').textContent = `${money(draft.threshold)} 元/MWh`;
+        $('infoUserShare').textContent = `${money(safe(draft.userShareRate)*100)}%`;
+        $('infoCompanyShare').textContent = `${money(safe(draft.companyShareRate)*100)}%`;
+        $('costEnergy').textContent = `¥${money(draft.wholesaleEnergyFee)}`;
+        $('costFund').textContent = `¥${money(draft.fundAllocation)}`;
+        $('costTotal').textContent = `¥${money(r.wholesaleCost)}`;
+        $('costAverage').textContent = `${money(r.wholesaleAverage)} 元/MWh`;
+        $('wholesaleTotalInput').value = money(r.wholesaleCost);
+        $('wholesaleAverageInput').value = `${money(r.wholesaleAverage)} 元/MWh`;
         $('userCount').textContent = `${r.negativeCount}户负收益 / ${r.activeCount}户有结算`;
-        $('profitRows').innerHTML = visible.length ? visible.map(u => `<tr><td title="${esc(u.name)}">${esc(u.name)}</td><td>${esc(u.contact||'-')}</td><td class="num">${qty(u.volumeMwh)}</td><td class="num">${money(u.retailEnergyFee)}</td><td class="num">${money(u.allocatedWholesale)}</td><td class="num ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}${money(u.profitAfterRefund)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty">没有符合条件的用户</td></tr>`;
-        $('profitCards').innerHTML = visible.length ? visible.map(u => `<article class="user-card ${u.profitAfterRefund<0?'negative':''}"><div class="user-card-top"><div><h3>${esc(u.name)}</h3><p>${esc(u.contact||'未填对接人')} · ${qty(u.volumeMwh)} MWh</p></div><strong class="${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}¥${money(u.profitAfterRefund)}</strong></div></article>`).join('') : `<div class="empty">没有符合条件的用户</div>`;
+        $('profitRows').innerHTML = visible.length ? visible.map(u => `<tr><td title="${esc(u.name)}">${esc(u.name)}</td><td>${esc(u.contact||'-')}</td><td class="num">${money(u.signedPrice)}</td><td class="num">${qty(u.volumeMwh)}</td><td class="num">${money(u.retailEnergyFee)}</td><td class="num">${money(u.retailAverage)}</td><td class="num">${money(u.allocatedWholesale)}</td><td class="num">${money(u.allocatedWholesaleAverage)}</td><td class="num">${money(u.userRefund)}</td><td class="num ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}${money(u.profitAfterRefund)}</td><td class="num ${u.profitAverage<0?'profit-negative':'profit-positive'}">${money(u.profitAverage)}</td><td><span class="status-dot ${u.riskStatus==='区间内'||u.riskStatus==='无结算'?'':'risk'}"></span>${esc(u.riskStatus)}</td></tr>`).join('') : `<tr><td colspan="12" class="empty">没有符合条件的用户</td></tr>`;
+        $('profitCards').innerHTML = visible.length ? visible.map(u => `<article class="user-card ${u.profitAfterRefund<0?'negative':''}"><div class="user-card-top"><div><h3>${esc(u.name)}</h3><p>${esc(u.contact||'未填对接人')} · ${qty(u.volumeMwh)} MWh · ${esc(u.riskStatus)}</p></div><strong class="${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}¥${money(u.profitAfterRefund)}</strong></div><div class="user-meta-grid"><div class="user-meta">签约价<strong>${money(u.signedPrice)}</strong></div><div class="user-meta">零售均价<strong>${money(u.retailAverage)}</strong></div><div class="user-meta">批发成本均价<strong>${money(u.allocatedWholesaleAverage)}</strong></div></div></article>`).join('') : `<div class="empty">没有符合条件的用户</div>`;
         const chartUsers = [...r.users].filter(u=>safe(u.volumeMwh)>0).sort((a,b)=>Math.abs(b.profitAfterRefund)-Math.abs(a.profitAfterRefund)).slice(0,8);
         const max = Math.max(...chartUsers.map(u=>Math.abs(u.profitAfterRefund)),1);
         $('chart').innerHTML = chartUsers.map(u=>`<div class="bar-row"><span class="bar-label" title="${esc(u.name)}">${esc(u.name.replace(/（.*?）/g,'').slice(0,9))}</span><div class="bar-track"><div class="bar-fill ${u.profitAfterRefund<0?'negative':''}" style="width:${Math.max(Math.abs(u.profitAfterRefund)/max*100,1)}%"></div></div><span class="bar-value ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}${money(u.profitAfterRefund)}</span></div>`).join('') || `<div class="empty">暂无结算数据</div>`;
@@ -428,6 +513,9 @@
         $('companyInput').value = draft.companyName || '';
         $('wholesaleInput').value = safe(draft.wholesaleEnergyFee);
         $('fundInput').value = safe(draft.fundAllocation);
+        const r = calculate(draft);
+        $('wholesaleTotalInput').value = money(r.wholesaleCost);
+        $('wholesaleAverageInput').value = `${money(r.wholesaleAverage)} 元/MWh`;
         $('thresholdInput').value = safe(draft.threshold);
         $('userShareInput').value = safe(draft.userShareRate)*100;
         $('companyShareInput').value = safe(draft.companyShareRate)*100;
@@ -441,9 +529,9 @@
           ${['signedPrice','volumeMwh','packageFee','riskFee','touFee'].map(k=>`<td><input class="input editable number-input" type="number" step="${k==='volumeMwh'?'.001':'.01'}" data-field="${k}" value="${safe(u[k])}" /></td>`).join('')}
           <td class="num">${money(u.allocatedWholesale)}</td><td class="num ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${money(u.profitAfterRefund)}</td>
           <td><button class="icon-btn" data-remove="${esc(u.id)}" aria-label="删除${esc(u.name)}">×</button></td></tr>`).join('');
-        $('inputTotal').textContent = `合计：${r.activeCount}户，${qty(r.totalVolume)} MWh`;
+        $('inputTotal').textContent = `合计：${r.activeCount}户，${qty(r.totalVolume)} MWh；批发成本均价 ${money(r.wholesaleAverage)} 元/MWh`;
         $('inputProfit').className = r.profitAfterRefund<0?'profit-negative':'profit-positive';
-        $('inputProfit').textContent = `返还后我司收益 ¥${money(r.profitAfterRefund)}`;
+        $('inputProfit').textContent = `返还后我司收益 ¥${money(r.profitAfterRefund)}（${money(r.profitAverageAfterRefund)} 元/MWh）`;
       }
 
       function render() { renderPeriods(); renderDashboard(); fillSettings(); renderInputs(); }
@@ -464,7 +552,7 @@
       $('filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderDashboard();});
       $('saveMonth').addEventListener('click',persist);
       $('addUser').addEventListener('click',()=>{draft.users.push({id:uid(),name:'新用户',contact:'',signedPrice:0,volumeMwh:0,packageFee:0,riskFee:0,touFee:0});markDirty();renderInputs();});
-      $('inputRows').addEventListener('input',e=>{const input=e.target.closest('[data-field]');if(!input)return;const row=input.closest('[data-id]');const user=draft.users.find(u=>u.id===row.dataset.id);if(!user)return;const field=input.dataset.field;user[field]=input.type==='number'?safe(input.value):input.value;markDirty();renderDashboard();const r=calculate(draft);const ru=r.users.find(u=>u.id===user.id);row.children[7].textContent=money(ru.allocatedWholesale);row.children[8].textContent=money(ru.profitAfterRefund);row.children[8].className=`num ${ru.profitAfterRefund<0?'profit-negative':'profit-positive'}`;$('inputTotal').textContent=`合计：${r.activeCount}户，${qty(r.totalVolume)} MWh`;$('inputProfit').textContent=`返还后我司收益 ¥${money(r.profitAfterRefund)}`;});
+      $('inputRows').addEventListener('input',e=>{const input=e.target.closest('[data-field]');if(!input)return;const row=input.closest('[data-id]');const user=draft.users.find(u=>u.id===row.dataset.id);if(!user)return;const field=input.dataset.field;user[field]=input.type==='number'?safe(input.value):input.value;markDirty();renderDashboard();const r=calculate(draft);const ru=r.users.find(u=>u.id===user.id);row.children[7].textContent=money(ru.allocatedWholesale);row.children[8].textContent=money(ru.profitAfterRefund);row.children[8].className=`num ${ru.profitAfterRefund<0?'profit-negative':'profit-positive'}`;$('inputTotal').textContent=`合计：${r.activeCount}户，${qty(r.totalVolume)} MWh；批发成本均价 ${money(r.wholesaleAverage)} 元/MWh`;$('inputProfit').textContent=`返还后我司收益 ¥${money(r.profitAfterRefund)}（${money(r.profitAverageAfterRefund)} 元/MWh）`;});
       $('inputRows').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;draft.users=draft.users.filter(u=>u.id!==b.dataset.remove);markDirty();renderInputs();});
       [['periodInput','period',false],['companyInput','companyName',false],['wholesaleInput','wholesaleEnergyFee',true],['fundInput','fundAllocation',true],['thresholdInput','threshold',true]].forEach(([id,field,isNum])=>$(id).addEventListener('input',e=>updateMonthField(field,isNum?safe(e.target.value):e.target.value)));
       $('userShareInput').addEventListener('input',e=>{const v=Math.min(100,Math.max(0,safe(e.target.value)))/100;draft.userShareRate=v;draft.companyShareRate=1-v;$('companyShareInput').value=(1-v)*100;markDirty();renderInputs();});
