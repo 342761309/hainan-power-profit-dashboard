@@ -131,6 +131,24 @@
     .formula { grid-column: 1 / -1; }
     .formula code { display: block; margin-top: 10px; padding: 14px; overflow-x: auto; border-radius: 12px; color: #154d83; background: var(--blue-soft); font-family: inherit; line-height: 1.7; }
     .privacy { margin-top: 14px; padding: 13px 15px; color: #70501e; background: #fff8e9; border: 1px solid #f1dcae; border-radius: 14px; font-size: 13px; line-height: 1.65; }
+    .trend-summary { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-bottom: 14px; }
+    .trend-summary .metric { border-top: 4px solid #8eb9df; }
+    .trend-layout { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-bottom: 14px; }
+    .chart-card { min-width: 0; }
+    .svg-chart { min-height: 300px; overflow-x: auto; padding: 8px 12px 12px; }
+    .svg-chart svg { display: block; width: 100%; min-width: 520px; height: auto; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 13px; padding: 0 20px 13px; color: var(--muted); font-size: 12px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-line { width: 20px; height: 3px; border-radius: 9px; background: var(--legend); }
+    .source-strip { margin-top: 12px; padding: 12px 14px; border: 1px solid #dbe7f1; border-radius: 13px; color: #4e6479; background: #f8fbfe; font-size: 12px; line-height: 1.65; }
+    .source-strip strong { color: var(--ink); }
+    .comparison-wrap { max-height: none; }
+    .comparison-table { min-width: 1380px; }
+    .comparison-table tr.current { background: #edf6ff; }
+    .comparison-table td:first-child { font-weight: 800; color: var(--blue); }
+    .comparison-table tfoot td { position: sticky; bottom: 0; font-weight: 850; background: #eef4f9; }
+    .basis-note { margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .basis-note.warning { padding: 11px 13px; color: #7c4e0a; border: 1px solid #f0d7a4; border-radius: 12px; background: #fff8e9; }
     .empty { padding: 42px 20px; color: var(--muted); text-align: center; }
     .toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 50; max-width: calc(100vw - 28px); padding: 11px 16px; color: #fff; background: rgba(16,36,62,.94); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.2); transform: translate(-50%, 25px); opacity: 0; pointer-events: none; transition: .2s ease; font-size: 13px; }
     .toast.show { transform: translate(-50%, 0); opacity: 1; }
@@ -142,6 +160,8 @@
       .cost-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .rules { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .trend-layout { grid-template-columns: 1fr; }
+      .trend-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
     }
     @media (max-width: 700px) {
       .shell { padding: 12px 12px 60px; }
@@ -168,6 +188,8 @@
       label.wide { grid-column: auto; }
       .rules { grid-template-columns: 1fr; }
       .table-total { flex-direction: column; }
+      .trend-summary { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .svg-chart { padding-inline: 5px; }
     }
     @media (max-width: 430px) {
       .metric-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -230,6 +252,41 @@
         <article class="card metric"><div class="metric-label">负收益用户</div><div class="metric-value" id="metricNegative"></div></article>
       </div>
 
+      <h2 class="section-title">2026年3—7月趋势与对比</h2>
+      <div class="trend-summary">
+        <article class="card metric"><div class="metric-label">累计结算电量</div><div class="metric-value" id="trendTotalVolume"></div></article>
+        <article class="card metric"><div class="metric-label">累计返还后收益</div><div class="metric-value" id="trendTotalProfit"></div></article>
+        <article class="card metric"><div class="metric-label">综合收益均价</div><div class="metric-value" id="trendProfitAverage"></div></article>
+        <article class="card metric"><div class="metric-label">收益最佳月份</div><div class="metric-value" id="trendBestMonth"></div></article>
+      </div>
+      <div class="trend-layout">
+        <article class="card chart-card">
+          <div class="card-head"><div><h2>月度价格走势</h2><p>市场披露价格与公司实际批发成本均价对比</p></div></div>
+          <div class="svg-chart" id="priceTrendChart"></div>
+          <div class="chart-legend">
+            <span class="legend-item"><i class="legend-line" style="--legend:#0754a6"></i>月度批发市场结算均价</span>
+            <span class="legend-item"><i class="legend-line" style="--legend:#d97706"></i>用电侧日前均价</span>
+            <span class="legend-item"><i class="legend-line" style="--legend:#64748b"></i>公司实际批发成本均价</span>
+          </div>
+        </article>
+        <article class="card chart-card">
+          <div class="card-head"><div><h2>公司收益走势</h2><p>同时展示返还前与返还后收益，零线以下为亏损</p></div></div>
+          <div class="svg-chart" id="profitTrendChart"></div>
+          <div class="chart-legend">
+            <span class="legend-item"><i class="legend-line" style="--legend:#9ab9d8"></i>返还前收益</span>
+            <span class="legend-item"><i class="legend-line" style="--legend:#0754a6"></i>返还后收益</span>
+          </div>
+        </article>
+      </div>
+      <article class="card" style="margin-bottom:14px">
+        <div class="card-head"><div><h2>五个月经营对比</h2><p>价格单位为元/MWh，金额单位为元；横向滚动可查看全部指标</p></div></div>
+        <div class="table-wrap comparison-wrap"><table class="comparison-table">
+          <thead><tr><th>月份</th><th class="num">有结算用户</th><th class="num">电量</th><th class="num">零售均价</th><th class="num">公司批发成本均价</th><th class="num">市场结算均价</th><th class="num">用电侧日前均价</th><th class="num">返还前收益</th><th class="num">用户返还</th><th class="num">返还后收益</th><th class="num">返还后收益均价</th><th class="num">负收益用户</th></tr></thead>
+          <tbody id="comparisonRows"></tbody><tfoot id="comparisonTotal"></tfoot>
+        </table></div>
+        <div class="card-body"><div class="source-strip"><strong>数据口径：</strong>零售数据来自各月零售账单；批发成本来自结算单或电费发票；市场结算价和日前价来自海南电力现货市场结算月度价格披露。3月批发成本为发票倒算值，详见当月成本说明。</div></div>
+      </article>
+
       <article class="card info-card">
         <div class="card-head"><div><h2>结算基础信息</h2><p>公司、月份、用户范围与分成参数</p></div></div>
         <div class="card-body"><div class="info-grid">
@@ -243,6 +300,9 @@
           <div class="info-item"><div class="info-label">超额收益门槛</div><div class="info-value" id="infoThreshold"></div></div>
           <div class="info-item"><div class="info-label">用户返还比例</div><div class="info-value" id="infoUserShare"></div></div>
           <div class="info-item"><div class="info-label">公司保留比例</div><div class="info-value" id="infoCompanyShare"></div></div>
+          <div class="info-item"><div class="info-label">市场结算均价</div><div class="info-value" id="infoMarketPrice"></div></div>
+          <div class="info-item"><div class="info-label">用电侧日前均价</div><div class="info-value" id="infoDayAheadPrice"></div></div>
+          <div class="info-item"><div class="info-label">发电侧日前均价</div><div class="info-value" id="infoGeneratorPrice"></div></div>
         </div></div>
       </article>
 
@@ -253,7 +313,7 @@
           <div class="cost-item"><div class="cost-label">资金分摊及返还</div><div class="cost-value" id="costFund"></div></div>
           <div class="cost-item total"><div class="cost-label">批发成本合计</div><div class="cost-value" id="costTotal"></div></div>
           <div class="cost-item total"><div class="cost-label">批发成本均价</div><div class="cost-value" id="costAverage"></div></div>
-        </div></div>
+        </div><div class="basis-note" id="costBasis"></div><div class="source-strip" id="sourceNote"></div></div>
       </article>
 
       <div class="dashboard-grid">
@@ -308,11 +368,17 @@
           <label class="wide">售电公司<input class="input editable" id="companyInput" /></label>
           <label>批发侧电量电费（元）<input class="input editable" id="wholesaleInput" type="number" step="0.01" /></label>
           <label>资金分摊及返还（元）<input class="input editable" id="fundInput" type="number" step="0.01" /></label>
+          <label>批发成本总额（可选覆盖）<input class="input editable" id="wholesaleOverrideInput" type="number" step="0.01" placeholder="有完整成本时可直接填" /></label>
           <label>批发成本合计（自动）<input class="input" id="wholesaleTotalInput" disabled /></label>
           <label>批发成本均价（自动）<input class="input" id="wholesaleAverageInput" disabled /></label>
+          <label>市场结算均价（元/MWh）<input class="input editable" id="marketSettlementPriceInput" type="number" step="0.001" /></label>
+          <label>用电侧日前均价（元/MWh）<input class="input editable" id="dayAheadPriceInput" type="number" step="0.001" /></label>
+          <label>发电侧日前均价（元/MWh）<input class="input editable" id="generatorDayAheadPriceInput" type="number" step="0.001" /></label>
           <label>超额收益门槛（元/MWh）<input class="input editable" id="thresholdInput" type="number" step="0.01" /></label>
           <label>用户返还比例（%）<input class="input editable" id="userShareInput" type="number" step="0.01" min="0" max="100" /></label>
           <label>售电公司保留比例（%）<input class="input editable" id="companyShareInput" type="number" step="0.01" min="0" max="100" /></label>
+          <label class="wide">批发成本说明<input class="input editable" id="costBasisInput" placeholder="例如：结算单电量电费＋资金分摊" /></label>
+          <label class="wide">数据来源<input class="input editable" id="sourceNoteInput" placeholder="账单、结算单、价格披露文件" /></label>
         </div>
       </article>
 
@@ -348,12 +414,15 @@
   <script>
     (() => {
       'use strict';
-      const STORAGE_KEY = 'hainan-power-profit-dashboard-v4';
-      const LEGACY_STORAGE_KEYS = ['hainan-power-profit-dashboard-v3'];
+      const STORAGE_KEY = 'hainan-power-profit-dashboard-v5';
+      const LEGACY_STORAGE_KEYS = ['hainan-power-profit-dashboard-v4','hainan-power-profit-dashboard-v3'];
       const defaultPeriod = '2026-07';
       const sample = {
         period: defaultPeriod, companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 255381.39,
         fundAllocation: -2630.19, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: 387.569, dayAheadPrice: 391.915, marketSettlementPrice: 402.452,
+        costBasis: '2026-07批零结算账单：电量电费255381.39元，资金分摊及返还-2630.19元。',
+        sourceNote: '数据来源：2026-07.pdf；7月零售账单.xls；26-07.pdf',
         users: [
           {id:'jul-01', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:26.240, packageFee:11991.68, riskFee:-375.31, touFee:0},
           {id:'jul-02', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:5.548, packageFee:2535.41, riskFee:-79.32, touFee:0},
@@ -384,7 +453,9 @@
       const juneSample = {
         period: '2026-06', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 268231.94,
         fundAllocation: -9182.79, threshold: 15, userShareRate: .7, companyShareRate: .3,
-        sourceNote: '2026-6.pdf；零售侧明细结果.xls',
+        generatorDayAheadPrice: 443.851, dayAheadPrice: 445.415, marketSettlementPrice: 407.626,
+        costBasis: '2026-6批零结算账单：电量电费268231.94元，资金分摊及返还-9182.79元。',
+        sourceNote: '数据来源：2026-6.pdf；6月零售账单.xls；26-06.pdf',
         users: [
           {id:'jun-01', name:'海南北斗烽星科技集团有限公司', contact:'钟时才', signedPrice:430, volumeMwh:74.687, packageFee:32195.69, riskFee:0, touFee:-6684.29},
           {id:'jun-02', name:'海南迅启腾实业有限公司', contact:'赵霞', signedPrice:430, volumeMwh:53.778, packageFee:23182.33, riskFee:0, touFee:4183.35},
@@ -410,11 +481,91 @@
         ]
       };
 
-      const seedMonths = [sample, juneSample];
+      const maySample = {
+        period: '2026-05', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 236854.09,
+        fundAllocation: 230.47, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: 416.565, dayAheadPrice: 420.990, marketSettlementPrice: 399.733,
+        costBasis: '5月结算单：电量电费236854.09元，资金分摊及返还230.47元。',
+        sourceNote: '数据来源：5月结算单.pdf；5月零售账单.xls；26-05.pdf',
+        users: [
+          {id:'may-01', name:'海南北斗烽星科技集团有限公司', contact:'钟时才', signedPrice:430, volumeMwh:75.227, packageFee:32199.39, riskFee:0, touFee:-7252.03},
+          {id:'may-02', name:'海南迅启腾实业有限公司', contact:'赵霞', signedPrice:430, volumeMwh:51.660, packageFee:22112.04, riskFee:0, touFee:4377.13},
+          {id:'may-03', name:'海南创新九鼎科技有限公司', contact:'钟时才', signedPrice:425, volumeMwh:49.049, packageFee:20773.73, riskFee:0, touFee:0},
+          {id:'may-04', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:7.837, packageFee:3742.39, riskFee:-296.41, touFee:0},
+          {id:'may-05', name:'海南时代明珠酒店管理有限公司', contact:'钟时才', signedPrice:430, volumeMwh:32.261, packageFee:13808.68, riskFee:0, touFee:0},
+          {id:'may-06', name:'海南鑫港实业有限公司', contact:'钟时才', signedPrice:410, volumeMwh:13.618, packageFee:5583.79, riskFee:0, touFee:0},
+          {id:'may-07', name:'海南骏捷汽车销售有限公司', contact:'张总', signedPrice:505, volumeMwh:19.217, packageFee:9522.58, riskFee:-1072.74, touFee:0},
+          {id:'may-08', name:'澄迈老城张氏川妹火锅店', contact:'钟时才', signedPrice:420, volumeMwh:12.996, packageFee:5445.71, riskFee:0, touFee:0},
+          {id:'may-09', name:'海口美兰维克斯假日旅租', contact:'钟时才', signedPrice:430, volumeMwh:8.567, packageFee:3666.93, riskFee:0, touFee:0},
+          {id:'may-10', name:'海口琼山朋辉商务酒店', contact:'钟时才', signedPrice:440, volumeMwh:10.116, packageFee:4420.98, riskFee:0, touFee:0},
+          {id:'may-11', name:'海口美兰驿站一夏旅租', contact:'钟时才', signedPrice:440, volumeMwh:19.506, packageFee:8524.70, riskFee:0, touFee:0},
+          {id:'may-12', name:'海南海的故事旅业开发有限公司', contact:'林平', signedPrice:450, volumeMwh:35.265, packageFee:15729.23, riskFee:-222.97, touFee:0},
+          {id:'may-13', name:'海南好两点科技有限公司', contact:'黄', signedPrice:460, volumeMwh:127.975, packageFee:58232.50, riskFee:-1961.05, touFee:-24837.76},
+          {id:'may-14', name:'海南轻筑酒店管理有限公司', contact:'钟时才', signedPrice:440, volumeMwh:12.425, packageFee:5430.08, riskFee:0, touFee:0},
+          {id:'may-15', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:6.328, packageFee:2907.70, riskFee:-125.24, touFee:0},
+          {id:'may-16', name:'海口市逗玩电竞网吧（个人独资）', contact:'钟时才', signedPrice:440, volumeMwh:32.299, packageFee:14115.63, riskFee:0, touFee:0},
+          {id:'may-17', name:'临高临城龙源咖啡厅', contact:'林平', signedPrice:468, volumeMwh:5.660, packageFee:2616.22, riskFee:-127.48, touFee:0},
+          {id:'may-18', name:'海口美兰锦尚之家民宿店（个体工商户）', contact:'钟时才', signedPrice:450, volumeMwh:5.079, packageFee:2265.38, riskFee:-32.11, touFee:0},
+          {id:'may-19', name:'临高临城大盛台球俱乐部（个体工商户）', contact:'林平', signedPrice:450, volumeMwh:15.249, packageFee:6801.51, riskFee:-96.43, touFee:0},
+          {id:'may-20', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:25.057, packageFee:11513.66, riskFee:-495.95, touFee:0}
+        ]
+      };
+
+      const aprilSample = {
+        period: '2026-04', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 189894.71,
+        fundAllocation: -159.93, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: 485.165, dayAheadPrice: 485.794, marketSettlementPrice: 440.668,
+        costBasis: '4月结算单：电量电费189894.71元，资金分摊及返还-159.93元；4月电费发票金额与结算结果一致。',
+        sourceNote: '数据来源：4月结算单.pdf；4月电费发票.pdf；4月零售账单.xls；26-04.pdf',
+        users: [
+          {id:'apr-01', name:'海南北斗烽星科技集团有限公司', contact:'钟时才', signedPrice:430, volumeMwh:70.187, packageFee:30529.48, riskFee:0, touFee:-7402.41},
+          {id:'apr-02', name:'海南创新九鼎科技有限公司', contact:'钟时才', signedPrice:425, volumeMwh:40.762, packageFee:17546.91, riskFee:0, touFee:0},
+          {id:'apr-03', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:6.767, packageFee:3278.42, riskFee:0, touFee:0},
+          {id:'apr-04', name:'海南时代明珠酒店管理有限公司', contact:'钟时才', signedPrice:430, volumeMwh:27.496, packageFee:11960.02, riskFee:0, touFee:0},
+          {id:'apr-05', name:'海南骏捷汽车销售有限公司', contact:'张总', signedPrice:505, volumeMwh:16.893, packageFee:8488.28, riskFee:-299.65, touFee:0},
+          {id:'apr-06', name:'海口琼山朋辉商务酒店', contact:'钟时才', signedPrice:440, volumeMwh:8.983, packageFee:3988.19, riskFee:0, touFee:0},
+          {id:'apr-07', name:'海口美兰驿站一夏旅租', contact:'钟时才', signedPrice:440, volumeMwh:17.308, packageFee:7684.28, riskFee:0, touFee:0},
+          {id:'apr-08', name:'海南海的故事旅业开发有限公司', contact:'林平', signedPrice:450, volumeMwh:31.892, packageFee:14446.19, riskFee:0, touFee:0},
+          {id:'apr-09', name:'海南好两点科技有限公司', contact:'黄', signedPrice:460, volumeMwh:112.332, packageFee:51894.29, riskFee:0, touFee:-21964.32},
+          {id:'apr-10', name:'海南轻筑酒店管理有限公司', contact:'钟时才', signedPrice:440, volumeMwh:11.446, packageFee:5081.73, riskFee:0, touFee:0},
+          {id:'apr-11', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:5.785, packageFee:2715.39, riskFee:0, touFee:0},
+          {id:'apr-12', name:'海口市逗玩电竞网吧（个人独资）', contact:'钟时才', signedPrice:440, volumeMwh:25.667, packageFee:11395.45, riskFee:0, touFee:0},
+          {id:'apr-13', name:'临高临城龙源咖啡厅', contact:'林平', signedPrice:468, volumeMwh:4.492, packageFee:2107.52, riskFee:0, touFee:0},
+          {id:'apr-14', name:'海口美兰锦尚之家民宿店（个体工商户）', contact:'钟时才', signedPrice:450, volumeMwh:4.897, packageFee:2218.22, riskFee:0, touFee:0},
+          {id:'apr-15', name:'临高临城大盛台球俱乐部（个体工商户）', contact:'林平', signedPrice:450, volumeMwh:11.645, packageFee:5274.88, riskFee:0, touFee:0},
+          {id:'apr-16', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:22.052, packageFee:10350.84, riskFee:0, touFee:0}
+        ]
+      };
+
+      const marchSample = {
+        period: '2026-03', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: null,
+        fundAllocation: null, wholesaleCostOverride: 124893.50, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: 375.901, dayAheadPrice: 381.003, marketSettlementPrice: 389.523,
+        costBasis: '3月未提供交易结算单，批发成本按发票倒算：零售电量电费122709.70元＋发票应付差额2183.80元＝124893.50元；成本构成暂不拆分。',
+        sourceNote: '数据来源：3月电费发票.pdf；3月零售账单.xls；26-03.pdf',
+        users: [
+          {id:'mar-01', name:'海南创新九鼎科技有限公司', contact:'钟时才', signedPrice:425, volumeMwh:38.169, packageFee:15979.22, riskFee:0, touFee:0},
+          {id:'mar-02', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:6.080, packageFee:2873.68, riskFee:-268.55, touFee:0},
+          {id:'mar-03', name:'海南时代明珠酒店管理有限公司', contact:'钟时才', signedPrice:430, volumeMwh:22.689, packageFee:9600.71, riskFee:0, touFee:0},
+          {id:'mar-04', name:'海南骏捷汽车销售有限公司', contact:'张总', signedPrice:505, volumeMwh:12.169, packageFee:5970.63, riskFee:-756.52, touFee:0},
+          {id:'mar-05', name:'海口琼山朋辉商务酒店', contact:'钟时才', signedPrice:440, volumeMwh:7.029, packageFee:3037.53, riskFee:-25.78, touFee:0},
+          {id:'mar-06', name:'海口美兰驿站一夏旅租', contact:'钟时才', signedPrice:440, volumeMwh:13.852, packageFee:5986.08, riskFee:-50.85, touFee:0},
+          {id:'mar-07', name:'海南海的故事旅业开发有限公司', contact:'林平', signedPrice:450, volumeMwh:33.109, packageFee:14605.83, riskFee:-419.45, touFee:0},
+          {id:'mar-08', name:'海南好两点科技有限公司', contact:'黄', signedPrice:460, volumeMwh:102.490, packageFee:46135.26, riskFee:-2220.82, touFee:-18344.05},
+          {id:'mar-09', name:'海南轻筑酒店管理有限公司', contact:'钟时才', signedPrice:440, volumeMwh:7.871, packageFee:3401.41, riskFee:-28.88, touFee:0},
+          {id:'mar-10', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:4.900, packageFee:2240.21, riskFee:-140.68, touFee:0},
+          {id:'mar-11', name:'海口市逗玩电竞网吧（个人独资）', contact:'钟时才', signedPrice:440, volumeMwh:20.395, packageFee:8813.54, riskFee:-74.78, touFee:0},
+          {id:'mar-12', name:'临高临城龙源咖啡厅', contact:'林平', signedPrice:468, volumeMwh:3.629, packageFee:1659.69, riskFee:-104.75, touFee:0},
+          {id:'mar-13', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:15.163, packageFee:6932.34, riskFee:-435.37, touFee:0}
+        ]
+      };
+
+      const seedMonths = [sample, juneSample, maySample, aprilSample, marchSample];
 
       const $ = (id) => document.getElementById(id);
       const clone = (value) => JSON.parse(JSON.stringify(value));
       const safe = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
+      const hasNumber = (value) => value !== '' && value !== null && value !== undefined && Number.isFinite(Number(value));
       const money = (value) => new Intl.NumberFormat('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}).format(safe(value));
       const qty = (value) => new Intl.NumberFormat('zh-CN',{minimumFractionDigits:3,maximumFractionDigits:3}).format(safe(value));
       const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -426,7 +577,19 @@
           try {
             const value = JSON.parse(localStorage.getItem(key) || 'null');
             if (Array.isArray(value) && value.length) {
-              const merged = [...value, ...seedMonths.filter(seed => !value.some(month => month.period === seed.period)).map(clone)]
+              const enriched = value.map(month => {
+                const seed = seedMonths.find(item => item.period === month.period);
+                if (!seed) return month;
+                const mergedMonth = {...clone(seed), ...month};
+                ['generatorDayAheadPrice','dayAheadPrice','marketSettlementPrice'].forEach(field => {
+                  if (!hasNumber(month[field])) mergedMonth[field] = seed[field];
+                });
+                if (!month.costBasis) mergedMonth.costBasis = seed.costBasis;
+                if (!month.sourceNote || month.sourceNote === '2026-6.pdf；零售侧明细结果.xls') mergedMonth.sourceNote = seed.sourceNote;
+                if (!Array.isArray(month.users) || !month.users.length) mergedMonth.users = clone(seed.users);
+                return mergedMonth;
+              });
+              const merged = [...enriched, ...seedMonths.filter(seed => !value.some(month => month.period === seed.period)).map(clone)]
                 .sort((a,b) => b.period.localeCompare(a.period));
               localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
               return merged;
@@ -459,7 +622,7 @@
         const packageFee = month.users.reduce((s,u) => s + safe(u.packageFee), 0);
         const riskFee = month.users.reduce((s,u) => s + safe(u.riskFee), 0);
         const retailEnergyFee = packageFee + riskFee;
-        const wholesaleCost = safe(month.wholesaleEnergyFee) + safe(month.fundAllocation);
+        const wholesaleCost = hasNumber(month.wholesaleCostOverride) ? Number(month.wholesaleCostOverride) : safe(month.wholesaleEnergyFee) + safe(month.fundAllocation);
         const retailAverage = totalVolume ? retailEnergyFee / totalVolume : 0;
         const wholesaleAverage = totalVolume ? wholesaleCost / totalVolume : 0;
         const weightedSignedPrice = totalVolume ? month.users.reduce((s,u) => s + safe(u.signedPrice) * safe(u.volumeMwh), 0) / totalVolume : 0;
@@ -499,7 +662,8 @@
       }
 
       function blankMonth(period) {
-        return {period, companyName:draft.companyName, wholesaleEnergyFee:0, fundAllocation:0, threshold:safe(draft.threshold)||15,
+        return {period, companyName:draft.companyName, wholesaleEnergyFee:0, fundAllocation:0, wholesaleCostOverride:null,
+          generatorDayAheadPrice:0, dayAheadPrice:0, marketSettlementPrice:0, costBasis:'', sourceNote:'', threshold:safe(draft.threshold)||15,
           userShareRate:safe(draft.userShareRate), companyShareRate:safe(draft.companyShareRate),
           users:draft.users.map(u=>({id:uid(),name:u.name,contact:u.contact||'',signedPrice:safe(u.signedPrice),volumeMwh:0,packageFee:0,riskFee:0,touFee:0}))};
       }
@@ -529,6 +693,75 @@
         $('periods').innerHTML = savedMonths.map(m => `<button class="pill ${m.period===draft.period?'active':''}" data-period="${esc(m.period)}">${esc(periodLabel(m.period))}${m.period===draft.period&&dirty?' *':''}</button>`).join('');
       }
 
+      function trendMonths() {
+        const byPeriod = new Map(savedMonths.map(month => [month.period, month]));
+        byPeriod.set(draft.period, draft);
+        return [...byPeriod.values()].filter(month => month.period >= '2026-03' && month.period <= '2026-07')
+          .sort((a,b) => a.period.localeCompare(b.period)).map(month => ({month, result:calculate(month)}));
+      }
+
+      function renderPriceTrend(items) {
+        const width=720, height=320, pad={l:62,r:24,t:25,b:44};
+        const series=[
+          {field:'marketSettlementPrice',color:'#0754a6'},
+          {field:'dayAheadPrice',color:'#d97706'},
+          {field:'wholesaleAverage',color:'#64748b',dash:'7 5'}
+        ];
+        const all=[];
+        items.forEach(item=>series.forEach(s=>{const value=s.field==='wholesaleAverage'?item.result.wholesaleAverage:safe(item.month[s.field]);if(value)all.push(value);}));
+        if(!all.length){$('priceTrendChart').innerHTML='<div class="empty">暂无价格数据</div>';return;}
+        const rawMin=Math.min(...all), rawMax=Math.max(...all), gap=Math.max(rawMax-rawMin,20);
+        const min=Math.floor((rawMin-gap*.16)/10)*10, max=Math.ceil((rawMax+gap*.16)/10)*10;
+        const x=i=>pad.l+(items.length===1?0:(width-pad.l-pad.r)*i/(items.length-1));
+        const y=v=>pad.t+(max-v)*(height-pad.t-pad.b)/(max-min||1);
+        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="2026年3月至7月价格走势">`;
+        for(let i=0;i<5;i++){const v=min+(max-min)*i/4, yy=y(v);svg+=`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#dce6f0"/><text x="${pad.l-9}" y="${yy+4}" text-anchor="end" font-size="11" fill="#63758a">${Math.round(v)}</text>`;}
+        items.forEach((item,i)=>{svg+=`<text x="${x(i)}" y="${height-16}" text-anchor="middle" font-size="12" fill="#52677b">${Number(item.month.period.slice(5))}月</text>`;});
+        series.forEach(s=>{
+          const points=items.map((item,i)=>{const v=s.field==='wholesaleAverage'?item.result.wholesaleAverage:safe(item.month[s.field]);return v?`${x(i)},${y(v)}`:null;}).filter(Boolean);
+          if(points.length>1)svg+=`<polyline points="${points.join(' ')}" fill="none" stroke="${s.color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" ${s.dash?`stroke-dasharray="${s.dash}"`:''}/>`;
+          items.forEach((item,i)=>{const v=s.field==='wholesaleAverage'?item.result.wholesaleAverage:safe(item.month[s.field]);if(!v)return;svg+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#fff" stroke="${s.color}" stroke-width="2.5"><title>${periodLabel(item.month.period)} ${money(v)}元/MWh</title></circle>`;});
+        });
+        svg+='</svg>';
+        $('priceTrendChart').innerHTML=svg;
+      }
+
+      function renderProfitTrend(items) {
+        const width=720, height=320, pad={l:67,r:24,t:31,b:44};
+        const values=items.flatMap(item=>[item.result.profitBeforeRefund,item.result.profitAfterRefund]);
+        const min=Math.min(0,...values), max=Math.max(0,...values), span=Math.max(max-min,1), floor=min-span*.12, ceil=max+span*.18;
+        const y=v=>pad.t+(ceil-v)*(height-pad.t-pad.b)/(ceil-floor);
+        const group=(width-pad.l-pad.r)/Math.max(items.length,1), bar=Math.min(28,group*.24), zeroY=y(0);
+        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="2026年3月至7月公司收益走势">`;
+        for(let i=0;i<5;i++){const v=floor+(ceil-floor)*i/4, yy=y(v);svg+=`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#e4ebf2"/><text x="${pad.l-9}" y="${yy+4}" text-anchor="end" font-size="11" fill="#63758a">${Math.round(v/1000)}k</text>`;}
+        svg+=`<line x1="${pad.l}" y1="${zeroY}" x2="${width-pad.r}" y2="${zeroY}" stroke="#6f8294" stroke-width="1.5"/>`;
+        items.forEach((item,i)=>{
+          const cx=pad.l+group*(i+.5), entries=[{v:item.result.profitBeforeRefund,c:'#9ab9d8',dx:-bar-.8},{v:item.result.profitAfterRefund,c:'#0754a6',dx:.8}];
+          entries.forEach(entry=>{const yy=y(entry.v), top=Math.min(yy,zeroY), h=Math.max(Math.abs(zeroY-yy),1);svg+=`<rect x="${cx+entry.dx}" y="${top}" width="${bar}" height="${h}" rx="3" fill="${entry.v<0?'#d06a70':entry.c}"><title>${periodLabel(item.month.period)} ${money(entry.v)}元</title></rect>`;});
+          const labelY=item.result.profitAfterRefund>=0?Math.max(y(item.result.profitAfterRefund)-7,12):Math.min(y(item.result.profitAfterRefund)+15,height-pad.b-2);
+          svg+=`<text x="${cx+bar/2+1}" y="${labelY}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${item.result.profitAfterRefund<0?'#b13441':'#0754a6'}">${item.result.profitAfterRefund>=0?'+':''}${Math.round(item.result.profitAfterRefund/1000)}k</text><text x="${cx}" y="${height-16}" text-anchor="middle" font-size="12" fill="#52677b">${Number(item.month.period.slice(5))}月</text>`;
+        });
+        svg+='</svg>';
+        $('profitTrendChart').innerHTML=svg;
+      }
+
+      function renderTrends() {
+        const items=trendMonths();
+        const totalVolume=items.reduce((s,item)=>s+item.result.totalVolume,0);
+        const totalProfit=items.reduce((s,item)=>s+item.result.profitAfterRefund,0);
+        const best=items.reduce((out,item)=>!out||item.result.profitAfterRefund>out.result.profitAfterRefund?item:out,null);
+        $('trendTotalVolume').innerHTML=`${qty(totalVolume)} <small>MWh</small>`;
+        $('trendTotalProfit').innerHTML=`${totalProfit>=0?'+':''}${money(totalProfit)} <small>元</small>`;
+        $('trendTotalProfit').className=`metric-value ${totalProfit<0?'profit-negative':'profit-positive'}`;
+        $('trendProfitAverage').innerHTML=`${money(totalVolume?totalProfit/totalVolume:0)} <small>元/MWh</small>`;
+        $('trendBestMonth').innerHTML=best?`${Number(best.month.period.slice(5))}月 <small>${best.result.profitAfterRefund>=0?'+':''}${money(best.result.profitAfterRefund)}元</small>`:'-';
+        renderPriceTrend(items); renderProfitTrend(items);
+        $('comparisonRows').innerHTML=items.map(({month,result})=>`<tr class="${month.period===draft.period?'current':''}"><td>${periodLabel(month.period)}</td><td class="num">${result.activeCount}户</td><td class="num">${qty(result.totalVolume)}</td><td class="num">${money(result.retailAverage)}</td><td class="num">${money(result.wholesaleAverage)}</td><td class="num">${money(month.marketSettlementPrice)}</td><td class="num">${money(month.dayAheadPrice)}</td><td class="num ${result.profitBeforeRefund<0?'profit-negative':'profit-positive'}">${result.profitBeforeRefund>=0?'+':''}${money(result.profitBeforeRefund)}</td><td class="num">${money(result.userRefundTotal)}</td><td class="num ${result.profitAfterRefund<0?'profit-negative':'profit-positive'}">${result.profitAfterRefund>=0?'+':''}${money(result.profitAfterRefund)}</td><td class="num ${result.profitAverageAfterRefund<0?'profit-negative':'profit-positive'}">${money(result.profitAverageAfterRefund)}</td><td class="num">${result.negativeCount}户</td></tr>`).join('');
+        const totalRetail=items.reduce((s,item)=>s+item.result.retailEnergyFee,0), totalWholesale=items.reduce((s,item)=>s+item.result.wholesaleCost,0), totalBefore=items.reduce((s,item)=>s+item.result.profitBeforeRefund,0), totalRefund=items.reduce((s,item)=>s+item.result.userRefundTotal,0), neg=items.reduce((s,item)=>s+item.result.negativeCount,0);
+        const weighted=(field)=>totalVolume?items.reduce((s,item)=>s+safe(item.month[field])*item.result.totalVolume,0)/totalVolume:0;
+        $('comparisonTotal').innerHTML=`<tr><td>合计 / 加权</td><td class="num">—</td><td class="num">${qty(totalVolume)}</td><td class="num">${money(totalVolume?totalRetail/totalVolume:0)}</td><td class="num">${money(totalVolume?totalWholesale/totalVolume:0)}</td><td class="num">${money(weighted('marketSettlementPrice'))}</td><td class="num">${money(weighted('dayAheadPrice'))}</td><td class="num">${totalBefore>=0?'+':''}${money(totalBefore)}</td><td class="num">${money(totalRefund)}</td><td class="num">${totalProfit>=0?'+':''}${money(totalProfit)}</td><td class="num">${money(totalVolume?totalProfit/totalVolume:0)}</td><td class="num">${neg}户次</td></tr>`;
+      }
+
       function renderDashboard() {
         const r = calculate(draft); const visible = filteredUsers(r);
         $('heroPeriod').textContent = `${periodLabel(draft.period)} · ${dirty?'待保存':'已保存'}`;
@@ -553,10 +786,16 @@
         $('infoThreshold').textContent = `${money(draft.threshold)} 元/MWh`;
         $('infoUserShare').textContent = `${money(safe(draft.userShareRate)*100)}%`;
         $('infoCompanyShare').textContent = `${money(safe(draft.companyShareRate)*100)}%`;
-        $('costEnergy').textContent = `¥${money(draft.wholesaleEnergyFee)}`;
-        $('costFund').textContent = `¥${money(draft.fundAllocation)}`;
+        $('infoMarketPrice').textContent = hasNumber(draft.marketSettlementPrice) ? `${money(draft.marketSettlementPrice)} 元/MWh` : '-';
+        $('infoDayAheadPrice').textContent = hasNumber(draft.dayAheadPrice) ? `${money(draft.dayAheadPrice)} 元/MWh` : '-';
+        $('infoGeneratorPrice').textContent = hasNumber(draft.generatorDayAheadPrice) ? `${money(draft.generatorDayAheadPrice)} 元/MWh` : '-';
+        $('costEnergy').textContent = hasNumber(draft.wholesaleEnergyFee) ? `¥${money(draft.wholesaleEnergyFee)}` : '暂未拆分';
+        $('costFund').textContent = hasNumber(draft.fundAllocation) ? `¥${money(draft.fundAllocation)}` : '暂未拆分';
         $('costTotal').textContent = `¥${money(r.wholesaleCost)}`;
         $('costAverage').textContent = `${money(r.wholesaleAverage)} 元/MWh`;
+        $('costBasis').textContent = draft.costBasis || '尚未填写批发成本说明。';
+        $('costBasis').className = `basis-note ${hasNumber(draft.wholesaleCostOverride)?'warning':''}`;
+        $('sourceNote').innerHTML = `<strong>数据来源：</strong>${esc(String(draft.sourceNote||'尚未填写').replace(/^数据来源：/,''))}`;
         $('wholesaleTotalInput').value = money(r.wholesaleCost);
         $('wholesaleAverageInput').value = `${money(r.wholesaleAverage)} 元/MWh`;
         $('userCount').textContent = `${r.negativeCount}户负收益 / ${r.activeCount}户有结算`;
@@ -567,19 +806,26 @@
         $('chart').innerHTML = chartUsers.map(u=>`<div class="bar-row"><span class="bar-label" title="${esc(u.name)}">${esc(u.name.replace(/（.*?）/g,'').slice(0,9))}</span><div class="bar-track"><div class="bar-fill ${u.profitAfterRefund<0?'negative':''}" style="width:${Math.max(Math.abs(u.profitAfterRefund)/max*100,1)}%"></div></div><span class="bar-value ${u.profitAfterRefund<0?'profit-negative':'profit-positive'}">${u.profitAfterRefund>0?'+':''}${money(u.profitAfterRefund)}</span></div>`).join('') || `<div class="empty">暂无结算数据</div>`;
         const sum = r.users.reduce((s,u)=>s+u.profitAfterRefund,0);
         $('reconcile').textContent = `当前月份自动核对：逐户收益合计 ${money(sum)} 元，公司收益 ${money(r.profitAfterRefund)} 元，差额 ${money(sum-r.profitAfterRefund)} 元。`;
+        renderTrends();
       }
 
       function fillSettings() {
         $('periodInput').value = draft.period;
         $('companyInput').value = draft.companyName || '';
-        $('wholesaleInput').value = safe(draft.wholesaleEnergyFee);
-        $('fundInput').value = safe(draft.fundAllocation);
+        $('wholesaleInput').value = hasNumber(draft.wholesaleEnergyFee) ? draft.wholesaleEnergyFee : '';
+        $('fundInput').value = hasNumber(draft.fundAllocation) ? draft.fundAllocation : '';
+        $('wholesaleOverrideInput').value = hasNumber(draft.wholesaleCostOverride) ? draft.wholesaleCostOverride : '';
         const r = calculate(draft);
         $('wholesaleTotalInput').value = money(r.wholesaleCost);
         $('wholesaleAverageInput').value = `${money(r.wholesaleAverage)} 元/MWh`;
+        $('marketSettlementPriceInput').value = hasNumber(draft.marketSettlementPrice) ? draft.marketSettlementPrice : '';
+        $('dayAheadPriceInput').value = hasNumber(draft.dayAheadPrice) ? draft.dayAheadPrice : '';
+        $('generatorDayAheadPriceInput').value = hasNumber(draft.generatorDayAheadPrice) ? draft.generatorDayAheadPrice : '';
         $('thresholdInput').value = safe(draft.threshold);
         $('userShareInput').value = safe(draft.userShareRate)*100;
         $('companyShareInput').value = safe(draft.companyShareRate)*100;
+        $('costBasisInput').value = draft.costBasis || '';
+        $('sourceNoteInput').value = draft.sourceNote || '';
       }
 
       function renderInputs() {
@@ -615,14 +861,15 @@
       $('addUser').addEventListener('click',()=>{draft.users.push({id:uid(),name:'新用户',contact:'',signedPrice:0,volumeMwh:0,packageFee:0,riskFee:0,touFee:0});markDirty();renderInputs();});
       $('inputRows').addEventListener('input',e=>{const input=e.target.closest('[data-field]');if(!input)return;const row=input.closest('[data-id]');const user=draft.users.find(u=>u.id===row.dataset.id);if(!user)return;const field=input.dataset.field;user[field]=input.type==='number'?safe(input.value):input.value;markDirty();renderDashboard();const r=calculate(draft);const ru=r.users.find(u=>u.id===user.id);row.children[7].textContent=money(ru.allocatedWholesale);row.children[8].textContent=money(ru.profitAfterRefund);row.children[8].className=`num ${ru.profitAfterRefund<0?'profit-negative':'profit-positive'}`;$('inputTotal').textContent=`合计：${r.activeCount}户，${qty(r.totalVolume)} MWh；批发成本均价 ${money(r.wholesaleAverage)} 元/MWh`;$('inputProfit').textContent=`返还后我司收益 ¥${money(r.profitAfterRefund)}（${money(r.profitAverageAfterRefund)} 元/MWh）`;});
       $('inputRows').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;draft.users=draft.users.filter(u=>u.id!==b.dataset.remove);markDirty();renderInputs();});
-      [['periodInput','period',false],['companyInput','companyName',false],['wholesaleInput','wholesaleEnergyFee',true],['fundInput','fundAllocation',true],['thresholdInput','threshold',true]].forEach(([id,field,isNum])=>$(id).addEventListener('input',e=>updateMonthField(field,isNum?safe(e.target.value):e.target.value)));
+      [['periodInput','period',false],['companyInput','companyName',false],['wholesaleInput','wholesaleEnergyFee',true],['fundInput','fundAllocation',true],['marketSettlementPriceInput','marketSettlementPrice',true],['dayAheadPriceInput','dayAheadPrice',true],['generatorDayAheadPriceInput','generatorDayAheadPrice',true],['thresholdInput','threshold',true],['costBasisInput','costBasis',false],['sourceNoteInput','sourceNote',false]].forEach(([id,field,isNum])=>$(id).addEventListener('input',e=>updateMonthField(field,isNum?safe(e.target.value):e.target.value)));
+      $('wholesaleOverrideInput').addEventListener('input',e=>updateMonthField('wholesaleCostOverride',e.target.value===''?null:safe(e.target.value)));
       $('userShareInput').addEventListener('input',e=>{const v=Math.min(100,Math.max(0,safe(e.target.value)))/100;draft.userShareRate=v;draft.companyShareRate=1-v;$('companyShareInput').value=(1-v)*100;markDirty();renderInputs();});
       $('companyShareInput').addEventListener('input',e=>{const v=Math.min(100,Math.max(0,safe(e.target.value)))/100;draft.companyShareRate=v;draft.userShareRate=1-v;$('userShareInput').value=(1-v)*100;markDirty();renderInputs();});
       $('deleteMonth').addEventListener('click',()=>{if(!confirm(`确定删除${periodLabel(draft.period)}吗？`))return;savedMonths=savedMonths.filter(m=>m.period!==draft.period);if(!savedMonths.length)savedMonths=[blankMonth(new Date().toISOString().slice(0,7))];draft=clone(savedMonths[0]);localStorage.setItem(STORAGE_KEY,JSON.stringify(savedMonths));dirty=false;render();showToast('该月份已删除');});
       $('exportCsv').addEventListener('click',()=>{const rows=[['零售用户','对接人','签约固定价(元/MWh)','实际用电量(MWh)','套餐电费(元)','风险管控电费(元)','峰谷浮动电费(元)'],...draft.users.map(u=>[u.name,u.contact,u.signedPrice,u.volumeMwh,u.packageFee,u.riskFee,u.touFee])];download(`${draft.period}-用户收益录入.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');showToast('已导出本月CSV');});
       $('importCsv').addEventListener('click',()=>$('csvFile').click());
       $('csvFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;const lines=(await file.text()).replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean).map(parseCsvLine);if(lines.length<2){showToast('CSV中没有可导入的数据');return;}draft.users=lines.slice(1).map((r,i)=>({id:uid(),name:r[0]||`用户${i+1}`,contact:r[1]||'',signedPrice:safe(r[2]),volumeMwh:safe(r[3]),packageFee:safe(r[4]),riskFee:safe(r[5]),touFee:safe(r[6])}));e.target.value='';markDirty(`已导入${draft.users.length}个用户，请检查后保存`);renderInputs();});
-      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:4,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
+      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:5,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
       $('restoreJson').addEventListener('click',()=>$('jsonFile').click());
       $('jsonFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const value=JSON.parse(await file.text());if(!Array.isArray(value.months)||!value.months.length)throw new Error();savedMonths=value.months;draft=clone(savedMonths[0]);localStorage.setItem(STORAGE_KEY,JSON.stringify(savedMonths));dirty=false;render();showToast(`已恢复${savedMonths.length}个月份`);}catch{showToast('备份文件格式不正确');}e.target.value='';});
 
