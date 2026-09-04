@@ -348,14 +348,35 @@
   <script>
     (() => {
       'use strict';
-      const STORAGE_KEY = 'hainan-power-profit-dashboard-v1';
-      const defaultPeriod = new Date().toISOString().slice(0, 7);
+      const STORAGE_KEY = 'hainan-power-profit-dashboard-v3';
+      const defaultPeriod = '2026-07';
       const sample = {
-        period: defaultPeriod, companyName: '售电公司', wholesaleEnergyFee: 0,
-        fundAllocation: 0, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        period: defaultPeriod, companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 255381.39,
+        fundAllocation: -2630.19, threshold: 15, userShareRate: .7, companyShareRate: .3,
         users: [
-          {id:'sample-a', name:'示例用户A', contact:'', signedPrice:480, volumeMwh:0, packageFee:0, riskFee:0, touFee:0},
-          {id:'sample-b', name:'示例用户B', contact:'', signedPrice:470, volumeMwh:0, packageFee:0, riskFee:0, touFee:0}
+          {id:'jul-01', name:'海口港佳旺物业有限公司', contact:'林平', signedPrice:468, volumeMwh:26.240, packageFee:11991.68, riskFee:-375.31, touFee:0},
+          {id:'jul-02', name:'临高新盈合丰渔网加工厂', contact:'林平', signedPrice:468, volumeMwh:5.548, packageFee:2535.41, riskFee:-79.32, touFee:0},
+          {id:'jul-03', name:'海南众帮家居有限公司', contact:'刘丹', signedPrice:485, volumeMwh:9.390, packageFee:4456.80, riskFee:-299.88, touFee:0},
+          {id:'jul-04', name:'海南好两点科技有限公司', contact:'黄', signedPrice:460, volumeMwh:0, packageFee:0, riskFee:0, touFee:0},
+          {id:'jul-05', name:'临高临城龙源咖啡厅', contact:'林平', signedPrice:468, volumeMwh:5.684, packageFee:2610.88, riskFee:-94.59, touFee:0},
+          {id:'jul-06', name:'海南骏捷汽车销售有限公司', contact:'张总', signedPrice:505, volumeMwh:10.038, packageFee:4945.01, riskFee:-501.22, touFee:0},
+          {id:'jul-07', name:'海南时代明珠酒店管理有限公司', contact:'钟时才', signedPrice:430, volumeMwh:35.672, packageFee:15165.31, riskFee:0, touFee:0},
+          {id:'jul-08', name:'海南海的故事旅业开发有限公司', contact:'林平', signedPrice:450, volumeMwh:34.703, packageFee:15378.03, riskFee:-15.12, touFee:0},
+          {id:'jul-09', name:'海南轻筑酒店管理有限公司', contact:'钟时才', signedPrice:440, volumeMwh:13.052, packageFee:5666.30, riskFee:0, touFee:0},
+          {id:'jul-10', name:'海口琼山朋辉商务酒店', contact:'钟时才', signedPrice:440, volumeMwh:10.287, packageFee:4465.90, riskFee:0, touFee:0},
+          {id:'jul-11', name:'海南创新九鼎科技有限公司', contact:'钟时才', signedPrice:425, volumeMwh:53.772, packageFee:22618.23, riskFee:0, touFee:0},
+          {id:'jul-12', name:'临高临城大盛台球俱乐部（个体工商户）', contact:'林平', signedPrice:450, volumeMwh:15.974, packageFee:7078.62, riskFee:-6.98, touFee:0},
+          {id:'jul-13', name:'海口市逗玩电竞网吧（个人独资）', contact:'钟时才', signedPrice:440, volumeMwh:31.228, packageFee:13557.06, riskFee:0, touFee:0},
+          {id:'jul-14', name:'海口美兰驿站一夏旅租', contact:'钟时才', signedPrice:440, volumeMwh:19.961, packageFee:8665.71, riskFee:0, touFee:0},
+          {id:'jul-15', name:'海口美兰锦尚之家民宿店（个体工商户）', contact:'钟时才', signedPrice:450, volumeMwh:5.750, packageFee:2548.01, riskFee:-2.50, touFee:0},
+          {id:'jul-16', name:'海南北斗烽星科技集团有限公司', contact:'钟时才', signedPrice:430, volumeMwh:66.766, packageFee:28384.28, riskFee:0, touFee:-6017.05},
+          {id:'jul-17', name:'海口美兰维克斯假日旅租', contact:'钟时才', signedPrice:430, volumeMwh:11.964, packageFee:5086.30, riskFee:0, touFee:0},
+          {id:'jul-18', name:'海南迅启腾实业有限公司', contact:'赵霞', signedPrice:430, volumeMwh:50.160, packageFee:21324.66, riskFee:0, touFee:4223.02},
+          {id:'jul-19', name:'澄迈老城张氏川妹火锅店', contact:'钟时才', signedPrice:420, volumeMwh:14.531, packageFee:6046.82, riskFee:0, touFee:0},
+          {id:'jul-20', name:'海南鑫港实业有限公司', contact:'钟时才', signedPrice:410, volumeMwh:9.716, packageFee:3955.68, riskFee:0, touFee:0},
+          {id:'jul-21', name:'海南山地食品科技有限公司', contact:'王朝燕', signedPrice:430, volumeMwh:94.960, packageFee:40370.53, riskFee:0, touFee:8153.53},
+          {id:'jul-22', name:'文昌铺前三婆糟粕醋木兰湾文化行馆店（个体工商户）', contact:'王朝燕', signedPrice:430, volumeMwh:52.504, packageFee:22321.14, riskFee:0, touFee:0},
+          {id:'jul-23', name:'文昌铺前三婆糟粕醋店（个体工商户）', contact:'王朝燕', signedPrice:430, volumeMwh:21.095, packageFee:8968.13, riskFee:0, touFee:0}
         ]
       };
 
@@ -561,7 +582,7 @@
       $('exportCsv').addEventListener('click',()=>{const rows=[['零售用户','对接人','签约固定价(元/MWh)','实际用电量(MWh)','套餐电费(元)','风险管控电费(元)','峰谷浮动电费(元)'],...draft.users.map(u=>[u.name,u.contact,u.signedPrice,u.volumeMwh,u.packageFee,u.riskFee,u.touFee])];download(`${draft.period}-用户收益录入.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');showToast('已导出本月CSV');});
       $('importCsv').addEventListener('click',()=>$('csvFile').click());
       $('csvFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;const lines=(await file.text()).replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean).map(parseCsvLine);if(lines.length<2){showToast('CSV中没有可导入的数据');return;}draft.users=lines.slice(1).map((r,i)=>({id:uid(),name:r[0]||`用户${i+1}`,contact:r[1]||'',signedPrice:safe(r[2]),volumeMwh:safe(r[3]),packageFee:safe(r[4]),riskFee:safe(r[5]),touFee:safe(r[6])}));e.target.value='';markDirty(`已导入${draft.users.length}个用户，请检查后保存`);renderInputs();});
-      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:1,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
+      $('backupJson').addEventListener('click',()=>{download(`电力交易收益看板-全部备份-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:3,months:savedMonths},null,2),'application/json;charset=utf-8');showToast('已备份全部月份数据');});
       $('restoreJson').addEventListener('click',()=>$('jsonFile').click());
       $('jsonFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const value=JSON.parse(await file.text());if(!Array.isArray(value.months)||!value.months.length)throw new Error();savedMonths=value.months;draft=clone(savedMonths[0]);localStorage.setItem(STORAGE_KEY,JSON.stringify(savedMonths));dirty=false;render();showToast(`已恢复${savedMonths.length}个月份`);}catch{showToast('备份文件格式不正确');}e.target.value='';});
 
