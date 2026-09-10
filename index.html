@@ -429,7 +429,7 @@
           <label class="wide">数据来源<input class="input editable" id="sourceNoteInput" placeholder="账单、结算单、价格披露文件" /></label>
           <div class="form-subhead">官方账单核对值（可选）<small>从原始结算资料抄录总数，用来独立检查本页计算结果是否一致。</small></div>
           <label>官方结算电量（MWh）<input class="input editable" id="officialVolumeInput" type="number" step="0.001" placeholder="未录入请留空" /></label>
-          <label>官方零售电费（元）<input class="input editable" id="officialRetailInput" type="number" step="0.01" placeholder="未录入请留空" /></label>
+          <label>官方零售结算合计（元）<input class="input editable" id="officialRetailInput" type="number" step="0.01" placeholder="返还后、不含峰谷" /></label>
           <label>官方批发成本（元）<input class="input editable" id="officialWholesaleInput" type="number" step="0.01" placeholder="未录入请留空" /></label>
           <label>官方用户返还（元）<input class="input editable" id="officialRefundInput" type="number" step="0.01" placeholder="未录入请留空" /></label>
         </div>
@@ -651,7 +651,40 @@
         ]
       };
 
-      const seedMonths = [sample, juneSample, maySample, aprilSample, marchSample, februarySample, januarySample];
+      const augustSample = {
+        period: '2026-08', companyName: '海南万邦智慧能源有限公司', wholesaleEnergyFee: 183490.71,
+        fundAllocation: 130.75, wholesaleCostOverride: null, threshold: 15, userShareRate: .7, companyShareRate: .3,
+        generatorDayAheadPrice: null, dayAheadPrice: null, marketSettlementPrice: null,
+        officialVolume: 573.567, officialRetail: 208461.76, officialWholesale: 183621.46, officialRefund: 37885.87,
+        costBasis: '2026年8月售电公司交易结算依据：电量电费18.349071万元，资金分摊及返还0.013075万元，批发合计18.362146万元。',
+        sourceNote: '数据来源：8月结算单.pdf；8月结算单.xls。8月市场披露结算价及日前价待补充。',
+        users: [
+          {id:'aug-01',name:'澄迈老城张氏川妹火锅店',contact:'钟时才',signedPrice:420,volumeMwh:14.035,packageFee:5862.89,riskFee:0,touFee:0},
+          {id:'aug-02',name:'海口港佳旺物业有限公司',contact:'林平',signedPrice:468,volumeMwh:24.741,packageFee:11392.81,riskFee:-501.71,touFee:0},
+          {id:'aug-03',name:'海口美兰锦尚之家民宿店（个体工商户）',contact:'钟时才',signedPrice:450,volumeMwh:5.184,packageFee:2305.52,riskFee:-23.50,touFee:0},
+          {id:'aug-04',name:'海口美兰维克斯假日旅租',contact:'钟时才',signedPrice:430,volumeMwh:9.752,packageFee:4161.52,riskFee:0,touFee:0},
+          {id:'aug-05',name:'海口美兰驿站一夏旅租',contact:'钟时才',signedPrice:440,volumeMwh:20.458,packageFee:8914.24,riskFee:0,touFee:0},
+          {id:'aug-06',name:'海口琼山朋辉商务酒店',contact:'钟时才',signedPrice:440,volumeMwh:9.346,packageFee:4072.35,riskFee:0,touFee:0},
+          {id:'aug-07',name:'海口市逗玩电竞网吧（个人独资）',contact:'钟时才',signedPrice:440,volumeMwh:29.384,packageFee:12803.63,riskFee:0,touFee:0},
+          {id:'aug-08',name:'海南北斗烽星科技集团有限公司',contact:'钟时才',signedPrice:430,volumeMwh:56.611,packageFee:24157.82,riskFee:0,touFee:-4923.28},
+          {id:'aug-09',name:'海南创新九鼎科技有限公司',contact:'钟时才',signedPrice:425,volumeMwh:54.672,packageFee:23084.40,riskFee:0,touFee:0},
+          {id:'aug-10',name:'海南海的故事旅业开发有限公司',contact:'林平',signedPrice:450,volumeMwh:36.443,packageFee:16207.46,riskFee:-165.10,touFee:0},
+          {id:'aug-11',name:'海南骏捷汽车销售有限公司',contact:'张总',signedPrice:505,volumeMwh:9.603,packageFee:4746.17,riskFee:-518.88,touFee:0},
+          {id:'aug-12',name:'海南轻筑酒店管理有限公司',contact:'钟时才',signedPrice:440,volumeMwh:12.053,packageFee:5251.92,riskFee:0,touFee:0},
+          {id:'aug-13',name:'海南山地食品科技有限公司',contact:'王朝燕',signedPrice:430,volumeMwh:85.540,packageFee:36502.85,riskFee:0,touFee:7316.78},
+          {id:'aug-14',name:'海南时代明珠酒店管理有限公司',contact:'钟时才',signedPrice:430,volumeMwh:33.763,packageFee:14407.84,riskFee:0,touFee:0},
+          {id:'aug-15',name:'海南鑫港实业有限公司',contact:'钟时才',signedPrice:410,volumeMwh:12.044,packageFee:4922.80,riskFee:0,touFee:0},
+          {id:'aug-16',name:'海南迅启腾实业有限公司',contact:'赵霞',signedPrice:430,volumeMwh:48.453,packageFee:20676.57,riskFee:0,touFee:3635.27},
+          {id:'aug-17',name:'海南众帮家居有限公司',contact:'刘丹',signedPrice:485,volumeMwh:9.487,packageFee:4518.01,riskFee:-341.79,touFee:0},
+          {id:'aug-18',name:'临高临城大盛台球俱乐部（个体工商户）',contact:'林平',signedPrice:450,volumeMwh:16.312,packageFee:7254.51,riskFee:-73.90,touFee:0},
+          {id:'aug-19',name:'临高临城龙源咖啡厅',contact:'林平',signedPrice:468,volumeMwh:6.526,packageFee:3008.02,riskFee:-135.25,touFee:0},
+          {id:'aug-20',name:'临高新盈合丰渔网加工厂',contact:'林平',signedPrice:468,volumeMwh:5.653,packageFee:2603.13,riskFee:-114.65,touFee:0},
+          {id:'aug-21',name:'文昌铺前三婆糟粕醋店（个体工商户）',contact:'王朝燕',signedPrice:430,volumeMwh:22.439,packageFee:9575.49,riskFee:0,touFee:0},
+          {id:'aug-22',name:'文昌铺前三婆糟粕醋木兰湾文化行馆店（个体工商户）',contact:'王朝燕',signedPrice:430,volumeMwh:51.068,packageFee:21792.46,riskFee:0,touFee:0}
+        ]
+      };
+
+      const seedMonths = [augustSample, sample, juneSample, maySample, aprilSample, marchSample, februarySample, januarySample];
 
       const $ = (id) => document.getElementById(id);
       const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -659,6 +692,7 @@
       const hasNumber = (value) => value !== '' && value !== null && value !== undefined && Number.isFinite(Number(value));
       const money = (value) => new Intl.NumberFormat('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}).format(safe(value));
       const qty = (value) => new Intl.NumberFormat('zh-CN',{minimumFractionDigits:3,maximumFractionDigits:3}).format(safe(value));
+      const optionalMoney = (value) => hasNumber(value) ? money(value) : '—';
       const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
       const periodLabel = (period) => { const [y,m] = String(period).split('-'); return `${y}年${Number(m)}月`; };
       const uid = () => `u-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
@@ -900,7 +934,7 @@
       function reconciliationRows(month,result) {
         return [
           {label:'结算电量',field:'officialVolume',calculated:result.totalVolume,unit:'MWh',tolerance:.001,format:qty},
-          {label:'零售电费',field:'officialRetail',calculated:result.retailEnergyFee,unit:'元',tolerance:.02,format:money},
+          {label:'零售结算合计',field:'officialRetail',calculated:result.retailEnergyFee-result.userRefundTotal,unit:'元',tolerance:.02,format:money},
           {label:'批发成本',field:'officialWholesale',calculated:result.wholesaleCost,unit:'元',tolerance:.02,format:money},
           {label:'用户返还',field:'officialRefund',calculated:result.userRefundTotal,unit:'元',tolerance:.02,format:money}
         ].map(item=>{const entered=hasNumber(month[item.field]),official=entered?Number(month[item.field]):null,difference=entered?item.calculated-official:null;return {...item,entered,official,difference,ok:entered&&Math.abs(difference)<=item.tolerance};});
@@ -974,10 +1008,10 @@
         $('trendTitle').textContent=`${rangeLabel}趋势与对比`;
         $('comparisonTitle').textContent=`${items.length}个月经营对比`;
         renderPriceTrend(items); renderProfitTrend(items);
-        $('comparisonRows').innerHTML=items.map(({month,result})=>`<tr class="${month.period===draft.period?'current':''}"><td>${periodLabel(month.period)}</td><td class="num">${result.activeCount}户</td><td class="num">${qty(result.totalVolume)}</td><td class="num">${money(result.retailAverage)}</td><td class="num">${money(result.wholesaleAverage)}</td><td class="num">${money(month.marketSettlementPrice)}</td><td class="num">${money(month.dayAheadPrice)}</td><td class="num ${result.profitBeforeRefund<0?'profit-negative':'profit-positive'}">${result.profitBeforeRefund>=0?'+':''}${money(result.profitBeforeRefund)}</td><td class="num">${money(result.userRefundTotal)}</td><td class="num ${result.profitAfterRefund<0?'profit-negative':'profit-positive'}">${result.profitAfterRefund>=0?'+':''}${money(result.profitAfterRefund)}</td><td class="num ${result.profitAverageAfterRefund<0?'profit-negative':'profit-positive'}">${money(result.profitAverageAfterRefund)}</td><td class="num">${result.negativeCount}户</td></tr>`).join('');
+        $('comparisonRows').innerHTML=items.map(({month,result})=>`<tr class="${month.period===draft.period?'current':''}"><td>${periodLabel(month.period)}</td><td class="num">${result.activeCount}户</td><td class="num">${qty(result.totalVolume)}</td><td class="num">${money(result.retailAverage)}</td><td class="num">${money(result.wholesaleAverage)}</td><td class="num">${optionalMoney(month.marketSettlementPrice)}</td><td class="num">${optionalMoney(month.dayAheadPrice)}</td><td class="num ${result.profitBeforeRefund<0?'profit-negative':'profit-positive'}">${result.profitBeforeRefund>=0?'+':''}${money(result.profitBeforeRefund)}</td><td class="num">${money(result.userRefundTotal)}</td><td class="num ${result.profitAfterRefund<0?'profit-negative':'profit-positive'}">${result.profitAfterRefund>=0?'+':''}${money(result.profitAfterRefund)}</td><td class="num ${result.profitAverageAfterRefund<0?'profit-negative':'profit-positive'}">${money(result.profitAverageAfterRefund)}</td><td class="num">${result.negativeCount}户</td></tr>`).join('');
         const totalRetail=items.reduce((s,item)=>s+item.result.retailEnergyFee,0), totalWholesale=items.reduce((s,item)=>s+item.result.wholesaleCost,0), totalBefore=items.reduce((s,item)=>s+item.result.profitBeforeRefund,0), totalRefund=items.reduce((s,item)=>s+item.result.userRefundTotal,0), neg=items.reduce((s,item)=>s+item.result.negativeCount,0);
-        const weighted=(field)=>totalVolume?items.reduce((s,item)=>s+safe(item.month[field])*item.result.totalVolume,0)/totalVolume:0;
-        $('comparisonTotal').innerHTML=`<tr><td>合计 / 加权</td><td class="num">—</td><td class="num">${qty(totalVolume)}</td><td class="num">${money(totalVolume?totalRetail/totalVolume:0)}</td><td class="num">${money(totalVolume?totalWholesale/totalVolume:0)}</td><td class="num">${money(weighted('marketSettlementPrice'))}</td><td class="num">${money(weighted('dayAheadPrice'))}</td><td class="num">${totalBefore>=0?'+':''}${money(totalBefore)}</td><td class="num">${money(totalRefund)}</td><td class="num">${totalProfit>=0?'+':''}${money(totalProfit)}</td><td class="num">${money(totalVolume?totalProfit/totalVolume:0)}</td><td class="num">${neg}户次</td></tr>`;
+        const weighted=(field)=>{const available=items.filter(item=>hasNumber(item.month[field]));const volume=available.reduce((s,item)=>s+item.result.totalVolume,0);return volume?available.reduce((s,item)=>s+Number(item.month[field])*item.result.totalVolume,0)/volume:null;};
+        $('comparisonTotal').innerHTML=`<tr><td>合计 / 加权</td><td class="num">—</td><td class="num">${qty(totalVolume)}</td><td class="num">${money(totalVolume?totalRetail/totalVolume:0)}</td><td class="num">${money(totalVolume?totalWholesale/totalVolume:0)}</td><td class="num">${optionalMoney(weighted('marketSettlementPrice'))}</td><td class="num">${optionalMoney(weighted('dayAheadPrice'))}</td><td class="num">${totalBefore>=0?'+':''}${money(totalBefore)}</td><td class="num">${money(totalRefund)}</td><td class="num">${totalProfit>=0?'+':''}${money(totalProfit)}</td><td class="num">${money(totalVolume?totalProfit/totalVolume:0)}</td><td class="num">${neg}户次</td></tr>`;
         renderChangeAnalysis(items);
         renderCustomerHistory(items);
       }
