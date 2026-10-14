@@ -177,7 +177,37 @@
     .toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 50; max-width: calc(100vw - 28px); padding: 11px 16px; color: #fff; background: rgba(16,36,62,.94); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.2); transform: translate(-50%, 25px); opacity: 0; pointer-events: none; transition: .2s ease; font-size: 13px; }
     .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
+    .overview-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:20px 2px 12px; }
+    .overview-head h2 { margin:0; font-size:20px; }
+    .overview-grid { display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:14px; margin-bottom:12px; }
+    .overview-card { min-width:0; padding:24px; border-radius:22px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow); }
+    .overview-card.cost-focus { color:#fff; border-color:#06498e; background:linear-gradient(125deg,#063d76,#0864b9); }
+    .overview-card.after-focus { border-color:#a6d7c7; background:linear-gradient(140deg,#fff,#f0faf6); }
+    .overview-label { font-size:14px; font-weight:750; color:var(--muted); }
+    .cost-focus .overview-label { color:#d1e9ff; }
+    .overview-amount { margin:10px 0 17px; font-size:clamp(24px,3vw,38px); font-weight:850; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+    .overview-amount small,.unit-price small { font-size:12px; font-weight:600; letter-spacing:0; }
+    .unit-price { font-size:clamp(26px,3vw,36px); font-weight:850; font-variant-numeric:tabular-nums; }
+    .unit-caption { margin:4px 0 13px; font-size:12px; color:var(--muted); }
+    .cost-focus .unit-caption { color:#d1e9ff; }
+    .overview-foot { border-top:1px solid #dce6f0; padding-top:12px; font-size:12px; line-height:1.7; color:var(--muted); }
+    .cost-focus .overview-foot { border-color:#ffffff35; color:#d1e9ff; }
+    .refund-strip { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px 28px; padding:16px 20px; border:1px solid #ecd8b0; border-radius:16px; background:#fffaf0; }
+    .refund-strip span { color:#79613a; font-size:12px; }
+    .refund-strip strong { display:block; margin-top:5px; color:#916006; font-size:20px; font-variant-numeric:tabular-nums; }
+    .overview-note { margin:10px 2px 16px; color:var(--muted); font-size:12px; line-height:1.7; }
+    .month-visuals { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    .compact-chart { padding:12px 16px 16px; overflow:hidden; }
+    .compact-chart svg { display:block; width:100%; height:auto; }
+    .chart-unit { padding:12px 20px 0; font-size:12px; color:var(--muted); }
+    .flow-equation { margin:0 20px 18px; padding:12px 14px; border-radius:12px; background:#f5f8fc; color:#536a7f; font-size:12px; line-height:1.7; }
+    .chart-toggle { display:flex; gap:6px; }
+    .chart-toggle .pill { font-size:12px; }
+    button:focus-visible { outline:3px solid #81b9ed; outline-offset:3px; }
+
     @media (max-width: 1050px) {
+      .overview-card { padding:20px; }
+      .month-visuals { grid-template-columns:1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .dashboard-grid { grid-template-columns: 1fr; }
       .info-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
@@ -189,6 +219,19 @@
       .change-grid, .reconcile-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     }
     @media (max-width: 700px) {
+      .overview-grid { grid-template-columns:1fr 1fr; gap:10px; }
+      .cost-focus { grid-column:1 / -1; }
+      .overview-card { padding:18px 14px; border-radius:17px; }
+      .overview-amount { font-size:22px; }
+      .cost-focus .overview-amount { font-size:34px; }
+      .unit-price { font-size:27px; }
+      .unit-price small { display:block; margin-top:3px; }
+      .cost-focus .unit-price small { display:inline; }
+      .overview-head h2 { font-size:17px; }
+      .overview-head .btn { font-size:12px; }
+      .refund-strip { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:14px; }
+      .refund-strip strong { font-size:18px; }
+      .month-visuals .card-head { flex-wrap:wrap; }
       .shell { padding: 12px 12px 60px; }
       .topbar { align-items: flex-start; }
       .logo { width: 42px; height: 42px; border-radius: 14px; }
@@ -254,28 +297,59 @@
     </nav>
 
     <section class="panel active" id="dashboardPanel">
-      <div class="hero">
-        <div class="hero-grid">
-          <div>
-            <span class="badge" id="heroPeriod"></span>
-            <p class="hero-label">返还后公司收益</p>
-            <p class="hero-value" id="heroProfit"></p>
-            <p class="hero-note" id="heroNote"></p>
-          </div>
-          <button class="btn" id="heroEdit">编辑本月数据</button>
-        </div>
+      <div class="overview-head"><h2 id="heroPeriod"></h2><button class="btn small" id="heroEdit">编辑本月数据</button></div>
+      <div class="overview-grid">
+        <article class="overview-card cost-focus">
+          <div class="overview-label">我们的批发成本</div>
+          <div class="overview-amount" id="metricWholesale"></div>
+          <div class="unit-price" id="metricWholesaleAverage"></div>
+          <div class="unit-caption">每兆瓦时实际采购成本</div>
+          <div class="overview-foot" id="costSpotlightNote"></div>
+        </article>
+        <article class="overview-card">
+          <div class="overview-label">返还前公司收益</div>
+          <div class="overview-amount" id="metricProfitBefore"></div>
+          <div class="unit-price" id="metricProfitBeforeAverage"></div>
+          <div class="unit-caption">每兆瓦时收益 · 返还前</div>
+          <div class="overview-foot" id="beforeMarginNote"></div>
+        </article>
+        <article class="overview-card after-focus">
+          <div class="overview-label">返还后公司收益</div>
+          <div class="overview-amount" id="heroProfit"></div>
+          <div class="unit-price" id="metricProfitAfterAverage"></div>
+          <div class="unit-caption">每兆瓦时收益 · 公司留存</div>
+          <div class="overview-foot" id="afterMarginNote"></div>
+        </article>
       </div>
+      <div class="refund-strip">
+        <div><span>本月应返还用户</span><strong id="overviewRefund"></strong></div>
+        <div><span>每兆瓦时返还</span><strong id="overviewRefundAverage"></strong></div>
+        <div><span>返还占返还前收益</span><strong id="overviewRefundRate"></strong></div>
+        <div><span>返还触发门槛</span><strong id="overviewThreshold"></strong></div>
+      </div>
+      <p class="overview-note" id="heroNote"></p>
 
       <h2 class="section-title">核心经营指标</h2>
       <div class="metric-grid">
         <article class="card metric"><div class="metric-label">结算电量</div><div class="metric-value" id="metricVolume"></div></article>
-        <article class="card metric"><div class="metric-label">零售电量电费</div><div class="metric-value" id="metricRetail"></div></article>
-        <article class="card metric"><div class="metric-label">零售结算均价</div><div class="metric-value" id="metricRetailAverage"></div></article>
-        <article class="card metric"><div class="metric-label">批发结算成本</div><div class="metric-value" id="metricWholesale"></div></article>
-        <article class="card metric"><div class="metric-label">批发成本均价</div><div class="metric-value" id="metricWholesaleAverage"></div></article>
-        <article class="card metric"><div class="metric-label">返还前公司收益</div><div class="metric-value" id="metricProfitBefore"></div></article>
-        <article class="card metric"><div class="metric-label">返还前收益均价</div><div class="metric-value" id="metricProfitBeforeAverage"></div></article>
+        <article class="card metric"><div class="metric-label">返还前零售收入</div><div class="metric-value" id="metricRetail"></div></article>
+        <article class="card metric"><div class="metric-label">返还前零售均价</div><div class="metric-value" id="metricRetailAverage"></div></article>
         <article class="card metric"><div class="metric-label">负收益用户</div><div class="metric-value" id="metricNegative"></div></article>
+      </div>
+
+      <div class="month-visuals">
+        <article class="card chart-card">
+          <div class="card-head"><div><h2>本月收入与收益拆解</h2><p>零售收入扣除批发成本和用户返还，得到公司留存收益</p></div><div class="chart-toggle" id="flowUnitToggle" aria-label="收益拆解单位"><button class="pill active" data-unit="mwh" aria-pressed="true">元/MWh</button><button class="pill" data-unit="total" aria-pressed="false">总额</button></div></div>
+          <div class="chart-unit" id="flowChartUnit"></div>
+          <div class="compact-chart" id="incomeFlowChart"></div>
+          <div class="flow-equation" id="incomeFlowEquation"></div>
+        </article>
+        <article class="card chart-card">
+          <div class="card-head"><div><h2>每兆瓦时收益走势</h2><p>返还前后使用同一电量分母，比较各月盈利水平</p></div></div>
+          <div class="chart-unit">单位：元/MWh（兆瓦时）</div>
+          <div class="compact-chart" id="unitProfitTrendChart"></div>
+          <div class="chart-legend"><span class="legend-item"><i class="legend-line" style="--legend:#7f9cb9"></i>返还前</span><span class="legend-item"><i class="legend-line" style="--legend:#087c63"></i>返还后</span></div>
+        </article>
       </div>
 
       <h2 class="section-title" id="trendTitle">经营趋势与对比</h2>
@@ -787,6 +861,7 @@
       let draft = normalizeMonth(clone(pendingDraft || savedMonths[0] || sample));
       let currentView = 'dashboard';
       let currentFilter = 'all';
+      let flowUnit = 'mwh';
       let query = '';
       let dirty = Boolean(pendingDraft);
       let toastTimer;
@@ -1049,18 +1124,61 @@
         renderCustomerHistory(items);
       }
 
+      function renderIncomeFlow(result) {
+        const perMwh=flowUnit==='mwh', available=!perMwh||result.totalVolume>0;
+        const divisor=perMwh?result.totalVolume:1, unit=perMwh?'元/MWh':'元';
+        $('flowChartUnit').textContent=`${periodLabel(draft.period)} · 单位：${unit}`;
+        if(!available){$('incomeFlowChart').innerHTML='<div class="empty">本月无结算电量，暂无每兆瓦时拆解</div>';$('incomeFlowEquation').textContent='可切换总额查看收入、成本和收益。';return;}
+        const retail=result.retailEnergyFee/divisor, cost=result.wholesaleCost/divisor, refund=result.userRefundTotal/divisor, before=result.profitBeforeRefund/divisor, after=result.profitAfterRefund/divisor;
+        const steps=[{label:'零售收入',start:0,end:retail,value:retail,color:'#7f9cb9'}, {label:'批发成本',start:retail,end:before,value:-cost,color:'#0754a6'}, {label:'用户返还',start:before,end:after,value:-refund,color:'#ce8e28'}, {label:'公司留存',start:0,end:after,value:after,color:after<0?'#c33c48':'#087c63'}];
+        const width=560,height=290,pad={l:54,r:18,t:32,b:44}, min=Math.min(0,...steps.flatMap(s=>[s.start,s.end])),max=Math.max(0,...steps.flatMap(s=>[s.start,s.end])),span=Math.max(max-min,1),low=min-span*.12,high=max+span*.18;
+        const y=value=>pad.t+(high-value)*(height-pad.t-pad.b)/(high-low),group=(width-pad.l-pad.r)/4,bar=58;
+        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(periodLabel(draft.period))}收入成本与返还收益拆解，单位${unit}">`;
+        for(let i=0;i<5;i++){const value=low+(high-low)*i/4, yy=y(value);svg+=`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#e4ebf2"/><text x="${pad.l-7}" y="${yy+4}" text-anchor="end" font-size="11" fill="#63758a">${perMwh?Math.round(value):`${Math.round(value/1000)}k`}</text>`;}
+        svg+=`<line x1="${pad.l}" y1="${y(0)}" x2="${width-pad.r}" y2="${y(0)}" stroke="#899bab"/>`;
+        steps.forEach((s,i)=>{const cx=pad.l+group*(i+.5),top=y(Math.max(s.start,s.end)),h=Math.max(Math.abs(y(s.start)-y(s.end)),1);svg+=`<rect x="${cx-bar/2}" y="${top}" width="${bar}" height="${h}" rx="4" fill="${s.color}"><title>${s.label} ${money(s.value)} ${unit}</title></rect><text x="${cx}" y="${top-9}" text-anchor="middle" font-size="12" font-weight="750" fill="${s.color}">${s.value<0?'-':''}${money(Math.abs(s.value))}</text><text x="${cx}" y="${height-17}" text-anchor="middle" font-size="12" fill="#52677b">${s.label}</text>`;if(i<3)svg+=`<line x1="${cx+bar/2}" y1="${y(s.end)}" x2="${cx+group-bar/2}" y2="${y(s.end)}" stroke="#9daebd" stroke-dasharray="4 4"/>`;});
+        $('incomeFlowChart').innerHTML=svg+'</svg>';
+        $('incomeFlowEquation').textContent=`${money(retail)} − ${cost<0?`(${money(cost)})`:money(cost)} − ${money(refund)} = ${money(after)} ${unit}。返还前收益：${money(before)} ${unit}。`;
+      }
+
+      function renderUnitProfitTrend(items) {
+        items=items.filter(item=>item.result.totalVolume>0);
+        const width=560,height=290,pad={l:48,r:24,t:30,b:42}, values=items.flatMap(i=>[i.result.profitAverageBeforeRefund,i.result.profitAverageAfterRefund]);
+        if(!items.length){$('unitProfitTrendChart').innerHTML='<div class="empty">暂无结算数据</div>';return;}
+        const min=Math.min(0,...values),max=Math.max(0,...values),span=Math.max(max-min,1),low=min-span*.15,high=max+span*.2;
+        const x=i=>pad.l+(width-pad.l-pad.r)*(items.length===1?.5:i/(items.length-1)),y=v=>pad.t+(high-v)*(height-pad.t-pad.b)/(high-low);
+        let svg=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(periodRangeLabel(items))}返还前后每兆瓦时收益走势">`;
+        for(let i=0;i<5;i++){const v=low+(high-low)*i/4,yy=y(v);svg+=`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#e4ebf2"/><text x="${pad.l-8}" y="${yy+4}" text-anchor="end" font-size="11" fill="#63758a">${Math.round(v)}</text>`;}
+        svg+=`<line x1="${pad.l}" y1="${y(0)}" x2="${width-pad.r}" y2="${y(0)}" stroke="#899bab"/>`;
+        items.forEach((item,i)=>{svg+=`<text x="${x(i)}" y="${height-16}" text-anchor="middle" font-size="12" fill="#63758a">${Number(item.month.period.slice(5))}月</text>`;});
+        [{field:'profitAverageBeforeRefund',color:'#7f9cb9',label:'返还前'},{field:'profitAverageAfterRefund',color:'#087c63',label:'返还后'}].forEach(series=>{
+          const points=items.map((item,i)=>`${x(i)},${y(item.result[series.field])}`);svg+=`<polyline points="${points.join(' ')}" fill="none" stroke="${series.color}" stroke-width="3" stroke-linejoin="round"/>`;
+          items.forEach((item,i)=>{const v=item.result[series.field],selected=item.month.period===draft.period;svg+=`<circle cx="${x(i)}" cy="${y(v)}" r="${selected?5:3}" fill="${selected?series.color:'#fff'}" stroke="${series.color}" stroke-width="2"><title>${periodLabel(item.month.period)} ${series.label} ${money(v)} 元/MWh</title></circle>`;const close=series.field==='profitAverageAfterRefund'&&Math.abs(y(item.result.profitAverageBeforeRefund)-y(v))<28;if(selected)svg+=`<text x="${x(i)}" y="${y(v)+(close?19:-11)}" text-anchor="${i===items.length-1?'end':i===0?'start':'middle'}" font-size="12" font-weight="750" fill="${series.color}">${money(v)}</text>`;});
+        });
+        $('unitProfitTrendChart').innerHTML=svg+'</svg>';
+      }
+
       function renderDashboard() {
         const r = calculate(draft); const visible = filteredUsers(r);
         $('heroPeriod').textContent = `${periodLabel(draft.period)} · ${dirty?'待保存':'已保存'}`;
-        $('heroProfit').textContent = `¥${money(r.profitAfterRefund)}`;
-        $('heroNote').textContent = r.excessBase > 0 ? `已触发超额收益回收，应向用户返还 ${money(r.userRefundTotal)} 元。逐户收益合计与公司总收益自动对平。` : `低于 ${money(draft.threshold)} 元/MWh 门槛，本月无需返还。逐户收益合计与公司总收益自动对平。`;
+        $('heroProfit').innerHTML = `${money(r.profitAfterRefund)} <small>元</small>`;
+        $('heroNote').textContent = `${r.excessBase>0?`超过 ${money(draft.threshold)} 元/MWh 的收益部分，按 ${money(safe(draft.userShareRate)*100)}% 返还用户。`:'本月未触发超额收益返还。'}收益口径：零售电量电费 − 批发结算成本 − 用户返还；峰谷浮动电费不计入，未扣公司运营费用。`;
+        $('metricProfitAfterAverage').innerHTML=`${r.totalVolume?money(r.profitAverageAfterRefund):'—'} <small>元/MWh</small>`;
+        $('overviewRefund').textContent=`${money(r.userRefundTotal)} 元`;
+        $('overviewRefundAverage').textContent=r.totalVolume?`${money(r.userRefundTotal/r.totalVolume)} 元/MWh`:'—';
+        $('overviewRefundRate').textContent=r.profitBeforeRefund>0?`${money(r.userRefundTotal/r.profitBeforeRefund*100)}%`:'不适用';
+        $('overviewThreshold').textContent=`${money(draft.threshold)} 元/MWh`;
+        $('beforeMarginNote').textContent=r.retailEnergyFee>0?`收益 / 返还前零售收入：${money(r.profitBeforeRefund/r.retailEnergyFee*100)}%`:'本月暂无零售收入';
+        $('afterMarginNote').textContent=r.retailEnergyFee>0?`留存收益 / 返还前零售收入：${money(r.profitAfterRefund/r.retailEnergyFee*100)}%`:'本月暂无零售收入';
+        $('costSpotlightNote').textContent=hasNumber(draft.wholesaleCostOverride)?'按本月手工覆盖的批发成本计算。':`电量电费 ${money(draft.wholesaleEnergyFee)} 元 + 资金分摊及返还 ${money(draft.fundAllocation)} 元`;
         $('metricVolume').innerHTML = `${qty(r.totalVolume)} <small>MWh</small>`;
         $('metricRetail').innerHTML = `${money(r.retailEnergyFee)} <small>元</small>`;
-        $('metricRetailAverage').innerHTML = `${money(r.retailAverage)} <small>元/MWh</small>`;
+        $('metricRetailAverage').innerHTML = `${r.totalVolume?money(r.retailAverage):'—'} <small>元/MWh</small>`;
         $('metricWholesale').innerHTML = `${money(r.wholesaleCost)} <small>元</small>`;
-        $('metricWholesaleAverage').innerHTML = `${money(r.wholesaleAverage)} <small>元/MWh</small>`;
+        $('metricWholesaleAverage').innerHTML = `${r.totalVolume?money(r.wholesaleAverage):'—'} <small>元/MWh</small>`;
         $('metricProfitBefore').innerHTML = `${money(r.profitBeforeRefund)} <small>元</small>`;
-        $('metricProfitBeforeAverage').innerHTML = `${money(r.profitAverageBeforeRefund)} <small>元/MWh</small>`;
+        $('metricProfitBeforeAverage').innerHTML = `${r.totalVolume?money(r.profitAverageBeforeRefund):'—'} <small>元/MWh</small>`;
+        ['metricProfitBefore','metricProfitBeforeAverage','heroProfit','metricProfitAfterAverage'].forEach(id=>{$(id).style.color=(id==='heroProfit'||id==='metricProfitAfterAverage'?r.profitAfterRefund:r.profitBeforeRefund)<0?'var(--red)':'var(--green)';});
         $('metricNegative').innerHTML = `${r.negativeCount} <small>户</small>`;
         $('infoCompany').textContent = draft.companyName || '-';
         $('infoCompany').title = draft.companyName || '';
@@ -1095,6 +1213,8 @@
         const sum = r.users.reduce((s,u)=>s+u.profitAfterRefund,0);
         $('reconcile').textContent = `当前月份自动核对：逐户收益合计 ${money(sum)} 元，公司收益 ${money(r.profitAfterRefund)} 元，差额 ${money(sum-r.profitAfterRefund)} 元。`;
         renderTrends();
+        renderIncomeFlow(r);
+        renderUnitProfitTrend(trendMonths());
       }
 
       function fillSettings() {
@@ -1154,6 +1274,7 @@
       document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
       $('editCurrent').addEventListener('click',()=>setView('input'));
       $('heroEdit').addEventListener('click',()=>setView('input'));
+      $('flowUnitToggle').addEventListener('click',e=>{const b=e.target.closest('[data-unit]');if(!b)return;flowUnit=b.dataset.unit;document.querySelectorAll('#flowUnitToggle [data-unit]').forEach(button=>{const selected=button===b;button.classList.toggle('active',selected);button.setAttribute('aria-pressed',String(selected));});renderIncomeFlow(calculate(draft));});
       $('newMonth').addEventListener('click',()=>{if(dirty)cacheDraft();draft=blankMonth(nextPeriod());savedMonths=[draft,...savedMonths.filter(m=>m.period!==draft.period)];markDirty(`已创建${periodLabel(draft.period)}，草稿会自动保存，填入账单数据后请确认保存`);setView('input');render();});
       $('periods').addEventListener('click',e=>{const b=e.target.closest('[data-period]');if(b)selectMonth(b.dataset.period);});
       $('search').addEventListener('input',e=>{query=e.target.value;renderDashboard();});
