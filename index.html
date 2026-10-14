@@ -177,21 +177,15 @@
     .toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 50; max-width: calc(100vw - 28px); padding: 11px 16px; color: #fff; background: rgba(16,36,62,.94); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.2); transform: translate(-50%, 25px); opacity: 0; pointer-events: none; transition: .2s ease; font-size: 13px; }
     .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
-    .overview-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:20px 2px 12px; }
-    .overview-head h2 { margin:0; font-size:20px; }
-    .overview-grid { display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:14px; margin-bottom:12px; }
-    .overview-card { min-width:0; padding:24px; border-radius:22px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow); }
-    .overview-card.cost-focus { color:#fff; border-color:#06498e; background:linear-gradient(125deg,#063d76,#0864b9); }
-    .overview-card.after-focus { border-color:#a6d7c7; background:linear-gradient(140deg,#fff,#f0faf6); }
-    .overview-label { font-size:14px; font-weight:750; color:var(--muted); }
-    .cost-focus .overview-label { color:#d1e9ff; }
-    .overview-amount { margin:10px 0 17px; font-size:clamp(24px,3vw,38px); font-weight:850; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
-    .overview-amount small,.unit-price small { font-size:12px; font-weight:600; letter-spacing:0; }
-    .unit-price { font-size:clamp(26px,3vw,36px); font-weight:850; font-variant-numeric:tabular-nums; }
-    .unit-caption { margin:4px 0 13px; font-size:12px; color:var(--muted); }
-    .cost-focus .unit-caption { color:#d1e9ff; }
-    .overview-foot { border-top:1px solid #dce6f0; padding-top:12px; font-size:12px; line-height:1.7; color:var(--muted); }
-    .cost-focus .overview-foot { border-color:#ffffff35; color:#d1e9ff; }
+    .profit-overview { position:relative; z-index:1; display:grid; grid-template-columns:1fr 1.3fr; align-items:center; gap:30px; }
+    .profit-overview small { font-size:12px; font-weight:600; }
+    .profit-summary { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:16px; background:rgba(255,255,255,.09); }
+    .profit-summary-item { min-width:0; padding:17px 20px; }
+    .profit-summary-item:nth-child(n+3) { border-top:1px solid rgba(255,255,255,.18); }
+    .profit-summary-label { color:#d7ebff; font-size:13px; }
+    .profit-summary-value { margin-top:7px; font-size:clamp(20px,2.5vw,28px); font-weight:800; font-variant-numeric:tabular-nums; }
+    .hero-unit-profit { margin-top:10px; font-size:24px; font-weight:750; font-variant-numeric:tabular-nums; }
+    .hero-main .btn { margin-top:18px; }
     .refund-strip { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px 28px; padding:16px 20px; border:1px solid #ecd8b0; border-radius:16px; background:#fffaf0; }
     .refund-strip span { color:#79613a; font-size:12px; }
     .refund-strip strong { display:block; margin-top:5px; color:#916006; font-size:20px; font-variant-numeric:tabular-nums; }
@@ -206,7 +200,6 @@
     button:focus-visible { outline:3px solid #81b9ed; outline-offset:3px; }
 
     @media (max-width: 1050px) {
-      .overview-card { padding:20px; }
       .month-visuals { grid-template-columns:1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .dashboard-grid { grid-template-columns: 1fr; }
@@ -219,16 +212,12 @@
       .change-grid, .reconcile-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     }
     @media (max-width: 700px) {
-      .overview-grid { grid-template-columns:1fr 1fr; gap:10px; }
-      .cost-focus { grid-column:1 / -1; }
-      .overview-card { padding:18px 14px; border-radius:17px; }
-      .overview-amount { font-size:22px; }
-      .cost-focus .overview-amount { font-size:34px; }
-      .unit-price { font-size:27px; }
-      .unit-price small { display:block; margin-top:3px; }
-      .cost-focus .unit-price small { display:inline; }
-      .overview-head h2 { font-size:17px; }
-      .overview-head .btn { font-size:12px; }
+      .profit-overview { grid-template-columns:1fr; gap:18px; }
+      .hero-main .btn { display:none; }
+      .profit-summary-item { padding:14px 12px; }
+      .profit-summary-label { font-size:12px; }
+      .profit-summary-value { font-size:21px; }
+      .profit-summary-value small { display:block; margin-top:4px; }
       .refund-strip { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:14px; }
       .refund-strip strong { font-size:18px; }
       .month-visuals .card-head { flex-wrap:wrap; }
@@ -297,29 +286,22 @@
     </nav>
 
     <section class="panel active" id="dashboardPanel">
-      <div class="overview-head"><h2 id="heroPeriod"></h2><button class="btn small" id="heroEdit">编辑本月数据</button></div>
-      <div class="overview-grid">
-        <article class="overview-card cost-focus">
-          <div class="overview-label">我们的批发成本</div>
-          <div class="overview-amount" id="metricWholesale"></div>
-          <div class="unit-price" id="metricWholesaleAverage"></div>
-          <div class="unit-caption">每兆瓦时实际采购成本</div>
-          <div class="overview-foot" id="costSpotlightNote"></div>
-        </article>
-        <article class="overview-card">
-          <div class="overview-label">返还前公司收益</div>
-          <div class="overview-amount" id="metricProfitBefore"></div>
-          <div class="unit-price" id="metricProfitBeforeAverage"></div>
-          <div class="unit-caption">每兆瓦时收益 · 返还前</div>
-          <div class="overview-foot" id="beforeMarginNote"></div>
-        </article>
-        <article class="overview-card after-focus">
-          <div class="overview-label">返还后公司收益</div>
-          <div class="overview-amount" id="heroProfit"></div>
-          <div class="unit-price" id="metricProfitAfterAverage"></div>
-          <div class="unit-caption">每兆瓦时收益 · 公司留存</div>
-          <div class="overview-foot" id="afterMarginNote"></div>
-        </article>
+      <div class="hero">
+        <div class="profit-overview">
+          <div class="hero-main">
+            <span class="badge" id="heroPeriod"></span>
+            <p class="hero-label">返还后公司收益</p>
+            <p class="hero-value" id="heroProfit"></p>
+            <div class="hero-unit-profit" id="metricProfitAfterAverage"></div>
+            <button class="btn small" id="heroEdit">编辑本月数据</button>
+          </div>
+          <div class="profit-summary">
+            <div class="profit-summary-item"><div class="profit-summary-label">返还前公司收益</div><div class="profit-summary-value" id="metricProfitBefore"></div></div>
+            <div class="profit-summary-item"><div class="profit-summary-label">返还前每兆瓦时收益</div><div class="profit-summary-value" id="metricProfitBeforeAverage"></div></div>
+            <div class="profit-summary-item"><div class="profit-summary-label">批发结算成本</div><div class="profit-summary-value" id="metricWholesale"></div></div>
+            <div class="profit-summary-item"><div class="profit-summary-label">每兆瓦时批发成本</div><div class="profit-summary-value" id="metricWholesaleAverage"></div></div>
+          </div>
+        </div>
       </div>
       <div class="refund-strip">
         <div><span>本月应返还用户</span><strong id="overviewRefund"></strong></div>
@@ -1168,9 +1150,6 @@
         $('overviewRefundAverage').textContent=r.totalVolume?`${money(r.userRefundTotal/r.totalVolume)} 元/MWh`:'—';
         $('overviewRefundRate').textContent=r.profitBeforeRefund>0?`${money(r.userRefundTotal/r.profitBeforeRefund*100)}%`:'不适用';
         $('overviewThreshold').textContent=`${money(draft.threshold)} 元/MWh`;
-        $('beforeMarginNote').textContent=r.retailEnergyFee>0?`收益 / 返还前零售收入：${money(r.profitBeforeRefund/r.retailEnergyFee*100)}%`:'本月暂无零售收入';
-        $('afterMarginNote').textContent=r.retailEnergyFee>0?`留存收益 / 返还前零售收入：${money(r.profitAfterRefund/r.retailEnergyFee*100)}%`:'本月暂无零售收入';
-        $('costSpotlightNote').textContent=hasNumber(draft.wholesaleCostOverride)?'按本月手工覆盖的批发成本计算。':`电量电费 ${money(draft.wholesaleEnergyFee)} 元 + 资金分摊及返还 ${money(draft.fundAllocation)} 元`;
         $('metricVolume').innerHTML = `${qty(r.totalVolume)} <small>MWh</small>`;
         $('metricRetail').innerHTML = `${money(r.retailEnergyFee)} <small>元</small>`;
         $('metricRetailAverage').innerHTML = `${r.totalVolume?money(r.retailAverage):'—'} <small>元/MWh</small>`;
@@ -1178,7 +1157,7 @@
         $('metricWholesaleAverage').innerHTML = `${r.totalVolume?money(r.wholesaleAverage):'—'} <small>元/MWh</small>`;
         $('metricProfitBefore').innerHTML = `${money(r.profitBeforeRefund)} <small>元</small>`;
         $('metricProfitBeforeAverage').innerHTML = `${r.totalVolume?money(r.profitAverageBeforeRefund):'—'} <small>元/MWh</small>`;
-        ['metricProfitBefore','metricProfitBeforeAverage','heroProfit','metricProfitAfterAverage'].forEach(id=>{$(id).style.color=(id==='heroProfit'||id==='metricProfitAfterAverage'?r.profitAfterRefund:r.profitBeforeRefund)<0?'var(--red)':'var(--green)';});
+        ['metricProfitBefore','metricProfitBeforeAverage','heroProfit','metricProfitAfterAverage'].forEach(id=>{$(id).style.color=(id==='heroProfit'||id==='metricProfitAfterAverage'?r.profitAfterRefund:r.profitBeforeRefund)<0?'#ffd3d7':'#fff';});
         $('metricNegative').innerHTML = `${r.negativeCount} <small>户</small>`;
         $('infoCompany').textContent = draft.companyName || '-';
         $('infoCompany').title = draft.companyName || '';
