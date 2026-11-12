@@ -290,7 +290,7 @@
         <div class="profit-overview">
           <div class="hero-main">
             <span class="badge" id="heroPeriod"></span>
-            <p class="hero-label">返还后公司收益</p>
+            <p class="hero-label" id="heroProfitLabel">返还后公司收益</p>
             <p class="hero-value" id="heroProfit"></p>
             <div class="hero-unit-profit" id="metricProfitAfterAverage"></div>
             <button class="btn small" id="heroEdit">编辑本月数据</button>
@@ -304,7 +304,7 @@
         </div>
       </div>
       <div class="refund-strip">
-        <div><span>本月应返还用户</span><strong id="overviewRefund"></strong></div>
+        <div><span id="overviewRefundLabel">本月应返还用户</span><strong id="overviewRefund"></strong></div>
         <div><span>每兆瓦时返还</span><strong id="overviewRefundAverage"></strong></div>
         <div><span>返还占返还前收益</span><strong id="overviewRefundRate"></strong></div>
         <div><span>返还触发门槛</span><strong id="overviewThreshold"></strong></div>
@@ -407,7 +407,7 @@
 
       <article class="card cost-card">
         <div class="card-head"><div><h2>官方账单对账</h2><p>将本页计算值与原始结算资料中的总数独立核对</p></div><span class="status-chip pending" id="reconcileStatus">待录入</span></div>
-        <div class="card-body"><div class="reconcile-grid" id="reconcileGrid"></div><div class="basis-note">未录入的项目不会判定为零；差额只用于发现漏项或录入错误，不会改变收益计算。</div></div>
+        <div class="card-body"><div class="reconcile-grid" id="reconcileGrid"></div><div class="basis-note" id="reconcileBasis">未录入的项目不会判定为零；差额只用于发现漏项或录入错误，不会改变收益计算。</div></div>
       </article>
 
       <article class="card" style="margin-bottom:14px">
@@ -773,7 +773,52 @@
         ]
       };
 
-      const seedMonths = [septemberSample, augustSample, sample, juneSample, maySample, aprilSample, marchSample, februarySample, januarySample];
+      const octoberSample = {
+        period: "2026-10",
+        companyName: "海南万邦智慧能源有限公司",
+        wholesaleEnergyFee: 181811.81,
+        fundAllocation: 4816.42,
+        wholesaleCostOverride: null,
+        threshold: 15,
+        userShareRate: 0.7,
+        companyShareRate: 0.3,
+        generatorDayAheadPrice: null,
+        dayAheadPrice: null,
+        marketSettlementPrice: null,
+        officialVolume: 541.822,
+        officialRetail: 205194.82,
+        officialWholesale: 186628.23,
+        officialRefund: 24358.27,
+        officialMargin: 18566.59,
+        costBasis: "批次 062610MJ2611061。批发电量电费 181,811.81 元，资金分摊及返还 4,816.42 元。",
+        sourceNote: "2026-10.pdf；售电公司现货并单预发布结算结果查询-零售侧结果-零售主体电量+(1).xls。月度市场价格披露待补。",
+        users: [
+          {"id": "oct-01", "name": "海南北斗烽星科技集团有限公司", "contact": "钟时才", "signedPrice": 430.0, "volumeMwh": 60.346, "packageFee": 25416.69, "riskFee": -676.6, "touFee": -4799.59, "sourceRefund": 2712.93, "sourceRetailFund": 835.7},
+          {"id": "oct-02", "name": "文昌铺前三婆糟粕醋店（个体工商户）", "contact": "王朝燕", "signedPrice": 430.0, "volumeMwh": 18.449, "packageFee": 7770.4, "riskFee": -206.87, "touFee": 0.0, "sourceRefund": 829.4, "sourceRetailFund": 255.5},
+          {"id": "oct-03", "name": "海南迅启腾实业有限公司", "contact": "赵霞", "signedPrice": 430.0, "volumeMwh": 37.599, "packageFee": 15836.06, "riskFee": -421.59, "touFee": 2990.56, "sourceRefund": 1690.31, "sourceRetailFund": 520.7},
+          {"id": "oct-04", "name": "海南山地食品科技有限公司", "contact": "王朝燕", "signedPrice": 430.0, "volumeMwh": 96.0, "packageFee": 40433.58, "riskFee": -1076.44, "touFee": 6476.11, "sourceRefund": 4315.78, "sourceRetailFund": 1329.46},
+          {"id": "oct-05", "name": "海南创新九鼎科技有限公司", "contact": "钟时才", "signedPrice": 425.0, "volumeMwh": 44.584, "packageFee": 18577.44, "riskFee": -299.34, "touFee": 0.0, "sourceRefund": 2004.33, "sourceRetailFund": 617.43},
+          {"id": "oct-06", "name": "海南众帮家居有限公司", "contact": "刘丹", "signedPrice": 485.0, "volumeMwh": 9.214, "packageFee": 4336.94, "riskFee": -559.47, "touFee": 0.0, "sourceRefund": 414.23, "sourceRetailFund": 127.6},
+          {"id": "oct-07", "name": "海南时代明珠酒店管理有限公司", "contact": "钟时才", "signedPrice": 430.0, "volumeMwh": 30.264, "packageFee": 12746.72, "riskFee": -339.38, "touFee": 0.0, "sourceRefund": 1360.56, "sourceRetailFund": 419.11},
+          {"id": "oct-08", "name": "海南鑫港实业有限公司", "contact": "钟时才", "signedPrice": 410.0, "volumeMwh": 11.977, "packageFee": 4828.9, "riskFee": 0.0, "touFee": 0.0, "sourceRefund": 538.44, "sourceRetailFund": 165.87},
+          {"id": "oct-09", "name": "海南骏捷汽车销售有限公司", "contact": "张总", "signedPrice": 505.0, "volumeMwh": 16.037, "packageFee": 7836.97, "riskFee": -1262.27, "touFee": 0.0, "sourceRefund": 720.96, "sourceRetailFund": 222.09},
+          {"id": "oct-10", "name": "澄迈老城张氏川妹火锅店", "contact": "钟时才", "signedPrice": 420.0, "volumeMwh": 13.238, "packageFee": 5456.47, "riskFee": -29.28, "touFee": 0.0, "sourceRefund": 595.13, "sourceRetailFund": 183.33},
+          {"id": "oct-11", "name": "海口美兰维克斯假日旅租", "contact": "钟时才", "signedPrice": 430.0, "volumeMwh": 7.033, "packageFee": 2962.21, "riskFee": -78.89, "touFee": 0.0, "sourceRefund": 316.18, "sourceRetailFund": 97.4},
+          {"id": "oct-12", "name": "海口琼山朋辉商务酒店", "contact": "钟时才", "signedPrice": 440.0, "volumeMwh": 8.01, "packageFee": 3445.77, "riskFee": -161.91, "touFee": 0.0, "sourceRefund": 360.1, "sourceRetailFund": 110.93},
+          {"id": "oct-13", "name": "海口美兰驿站一夏旅租", "contact": "钟时才", "signedPrice": 440.0, "volumeMwh": 16.682, "packageFee": 7176.34, "riskFee": -337.21, "touFee": 0.0, "sourceRefund": 749.96, "sourceRetailFund": 231.02},
+          {"id": "oct-14", "name": "文昌铺前三婆糟粕醋木兰湾文化行馆店（个体工商户）", "contact": "王朝燕", "signedPrice": 430.0, "volumeMwh": 50.125, "packageFee": 21111.76, "riskFee": -562.0, "touFee": 0.0, "sourceRefund": 2253.43, "sourceRetailFund": 694.16},
+          {"id": "oct-15", "name": "海南海的故事旅业开发有限公司", "contact": "林平", "signedPrice": 450.0, "volumeMwh": 33.174, "packageFee": 14569.51, "riskFee": -969.15, "touFee": 0.0, "sourceRefund": 1491.38, "sourceRetailFund": 459.41},
+          {"id": "oct-16", "name": "海南轻筑酒店管理有限公司", "contact": "钟时才", "signedPrice": 440.0, "volumeMwh": 11.146, "packageFee": 4794.78, "riskFee": -225.25, "touFee": 0.0, "sourceRefund": 501.08, "sourceRetailFund": 154.36},
+          {"id": "oct-17", "name": "临高新盈合丰渔网加工厂", "contact": "林平", "signedPrice": 468.0, "volumeMwh": 4.539, "packageFee": 2072.93, "riskFee": -212.08, "touFee": 0.0, "sourceRefund": 204.06, "sourceRetailFund": 62.86},
+          {"id": "oct-18", "name": "海口市逗玩电竞网吧（个人独资）", "contact": "钟时才", "signedPrice": 440.0, "volumeMwh": 27.78, "packageFee": 11950.49, "riskFee": -561.52, "touFee": 0.0, "sourceRefund": 1248.88, "sourceRetailFund": 384.71},
+          {"id": "oct-19", "name": "临高临城龙源咖啡厅", "contact": "林平", "signedPrice": 468.0, "volumeMwh": 5.656, "packageFee": 2575.6, "riskFee": -256.81, "touFee": 0.0, "sourceRefund": 254.27, "sourceRetailFund": 78.33},
+          {"id": "oct-20", "name": "海口美兰锦尚之家民宿店（个体工商户）", "contact": "钟时才", "signedPrice": 450.0, "volumeMwh": 5.337, "packageFee": 2343.89, "riskFee": -155.87, "touFee": 0.0, "sourceRefund": 239.93, "sourceRetailFund": 73.9},
+          {"id": "oct-21", "name": "临高临城大盛台球俱乐部（个体工商户）", "contact": "林平", "signedPrice": 450.0, "volumeMwh": 13.068, "packageFee": 5739.22, "riskFee": -381.73, "touFee": 0.0, "sourceRefund": 587.49, "sourceRetailFund": 180.97},
+          {"id": "oct-22", "name": "海口港佳旺物业有限公司", "contact": "林平", "signedPrice": 468.0, "volumeMwh": 21.564, "packageFee": 9848.24, "riskFee": -1007.62, "touFee": 0.0, "sourceRefund": 969.44, "sourceRetailFund": 298.62}
+        ]
+      };
+
+      const seedMonths = [octoberSample, septemberSample, augustSample, sample, juneSample, maySample, aprilSample, marchSample, februarySample, januarySample];
 
       const $ = (id) => document.getElementById(id);
       const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -790,7 +835,8 @@
         const optionalNumbers = ['wholesaleCostOverride','officialVolume','officialRetail','officialWholesale','officialRefund'];
         const normalized = {...month, period:String(month?.period||defaultPeriod), users:Array.isArray(month?.users)?month.users:[]};
         optionalNumbers.forEach(field => { normalized[field] = hasNumber(month?.[field]) ? Number(month[field]) : null; });
-        normalized.users = normalized.users.map((user,index) => ({id:user.id||uid(),name:String(user.name||`用户${index+1}`),contact:String(user.contact||''),signedPrice:safe(user.signedPrice),volumeMwh:safe(user.volumeMwh),packageFee:safe(user.packageFee),riskFee:safe(user.riskFee),touFee:safe(user.touFee)}));
+        normalized.users = normalized.users.map((user,index) => ({id:user.id||uid(),name:String(user.name||`用户${index+1}`),contact:String(user.contact||''),signedPrice:safe(user.signedPrice),volumeMwh:safe(user.volumeMwh),packageFee:safe(user.packageFee),riskFee:safe(user.riskFee),touFee:safe(user.touFee),
+          ...(hasNumber(user.sourceRefund) && hasNumber(user.sourceRetailFund) ? {sourceRefund:Number(user.sourceRefund), sourceRetailFund:Number(user.sourceRetailFund)} : {})}));
         return normalized;
       }
 
@@ -1022,21 +1068,32 @@
       }
 
       function reconciliationRows(month,result) {
+        const hasBill = hasNumber(month.officialMargin);
+        const hasRetailDetail = hasBill && month.users.length > 0 && month.users.every(user => hasNumber(user.sourceRefund) && hasNumber(user.sourceRetailFund));
+        const billRefund = hasRetailDetail ? month.users.reduce((sum,user) => sum + user.sourceRefund, 0) : null;
+        const billRetailFund = hasRetailDetail ? month.users.reduce((sum,user) => sum + user.sourceRetailFund, 0) : null;
+        const comparableRetail = hasBill
+          ? hasRetailDetail ? result.retailEnergyFee - billRefund + billRetailFund : null
+          : result.retailEnergyFee - result.userRefundTotal;
         return [
           {label:'结算电量',field:'officialVolume',calculated:result.totalVolume,unit:'MWh',tolerance:.001,format:qty},
-          {label:'零售结算合计',field:'officialRetail',calculated:result.retailEnergyFee-result.userRefundTotal,unit:'元',tolerance:.02,format:money},
+          {label:'零售结算合计',field:'officialRetail',calculated:comparableRetail,unit:'元',tolerance:.02,format:money},
           {label:'批发成本',field:'officialWholesale',calculated:result.wholesaleCost,unit:'元',tolerance:.02,format:money},
-          {label:'用户返还',field:'officialRefund',calculated:result.userRefundTotal,unit:'元',tolerance:.02,format:money}
-        ].map(item=>{const entered=hasNumber(month[item.field]),official=entered?Number(month[item.field]):null,difference=entered?item.calculated-official:null;return {...item,entered,official,difference,ok:entered&&Math.abs(difference)<=item.tolerance};});
+          {label:'用户返还',field:'officialRefund',calculated:hasBill ? billRefund : result.userRefundTotal,unit:'元',tolerance:.02,format:money},
+          ...(hasBill ? [{label:'公司结算差额',field:'officialMargin',calculated:comparableRetail === null ? null : comparableRetail - result.wholesaleCost,unit:'元',tolerance:.02,format:money}] : [])
+        ].map(item=>{const official=hasNumber(month[item.field])?Number(month[item.field]):null,entered=official!==null&&hasNumber(item.calculated),rawDifference=entered?item.calculated-official:null,difference=entered&&Math.abs(rawDifference)<1e-8?0:rawDifference;return {...item,entered,official,difference,ok:entered&&Math.abs(difference)<=item.tolerance};});
       }
 
       function renderReconciliation(result) {
         const rows=reconciliationRows(draft,result), entered=rows.filter(row=>row.entered), warnings=entered.filter(row=>!row.ok);
         const status=warnings.length?'发现差异':entered.length===rows.length?'全部通过':entered.length?'部分已核对':'待录入';
         const statusClass=warnings.length?'warn':entered.length===rows.length?'ok':'pending';
+        $('reconcileBasis').textContent = hasNumber(draft.officialMargin)
+          ? '账单口径：套餐电费加风控电费，扣除实际用户返还，再加零售侧资金分摊。公司结算合计不含峰谷浮动，PDF 逐户电费含峰谷浮动。经营趋势沿用原测算口径。'
+          : '未录入的项目不会判定为零；差额只用于发现漏项或录入错误，不会改变收益计算。';
         $('reconcileStatus').textContent=status;
         $('reconcileStatus').className=`status-chip ${statusClass}`;
-        $('reconcileGrid').innerHTML=rows.map(row=>`<div class="reconcile-item ${!row.entered?'pending':row.ok?'ok':'warn'}"><div class="reconcile-label">${row.label}</div><div class="reconcile-value">${row.entered?`${signedMoney(row.difference)} ${row.unit}`:'尚未录入'}</div><div class="reconcile-detail">${row.entered?`页面 ${row.format(row.calculated)} / 官方 ${row.format(row.official)}`:`页面计算值 ${row.format(row.calculated)} ${row.unit}`}</div></div>`).join('');
+        $('reconcileGrid').innerHTML=rows.map(row=>`<div class="reconcile-item ${!row.entered?'pending':row.ok?'ok':'warn'}"><div class="reconcile-label">${row.label}</div><div class="reconcile-value">${row.entered?`${signedMoney(row.difference)} ${row.unit}`:'尚未录入'}</div><div class="reconcile-detail">${row.entered?`核对 ${row.format(row.calculated)} / 官方 ${row.format(row.official)}`:row.official!==null?`官方 ${row.format(row.official)} ${row.unit}，待补明细`:`页面计算值 ${row.format(row.calculated)} ${row.unit}`}</div></div>`).join('');
       }
 
       function renderPriceTrend(items) {
@@ -1145,6 +1202,12 @@
         $('heroPeriod').textContent = `${periodLabel(draft.period)} · ${dirty?'待保存':'已保存'}`;
         $('heroProfit').innerHTML = `${money(r.profitAfterRefund)} <small>元</small>`;
         $('heroNote').textContent = `${r.excessBase>0?`超过 ${money(draft.threshold)} 元/MWh 的收益部分，按 ${money(safe(draft.userShareRate)*100)}% 返还用户。`:'本月未触发超额收益返还。'}收益口径：零售电量电费 − 批发结算成本 − 用户返还；峰谷浮动电费不计入，未扣公司运营费用。`;
+        const hasOfficialMargin = hasNumber(draft.officialMargin);
+        $('heroProfitLabel').textContent = hasOfficialMargin ? '返还后公司收益（经营测算）' : '返还后公司收益';
+        $('overviewRefundLabel').textContent = hasOfficialMargin ? '测算返还金额' : '本月应返还用户';
+        if (hasOfficialMargin) {
+          $('heroNote').textContent = `交易中心账单：公司结算差额 ${money(draft.officialMargin)} 元，用户返还 ${money(draft.officialRefund)} 元。详见官方账单对账。`;
+        }
         $('metricProfitAfterAverage').innerHTML=`${r.totalVolume?money(r.profitAverageAfterRefund):'—'} <small>元/MWh</small>`;
         $('overviewRefund').textContent=`${money(r.userRefundTotal)} 元`;
         $('overviewRefundAverage').textContent=r.totalVolume?`${money(r.userRefundTotal/r.totalVolume)} 元/MWh`:'—';
