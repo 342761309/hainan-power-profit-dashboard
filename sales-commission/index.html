@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="按老客户和新客户的当月结算电量，计算全职售电业务员提成和税前应发工资。">
+<title>售电提成计算器</title>
+<style>
+:root{color-scheme:light;--ink:#152c25;--forest:#17493a;--paper:#f7f7ef;--muted:#52665d;--line:#cbd8ce;--accent:#d4eb8d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 'Microsoft YaHei','PingFang SC',system-ui,sans-serif}main{width:min(100% - 36px,640px);margin:36px auto 48px}h1{margin:0;font-size:clamp(30px,6vw,44px);line-height:1.2;letter-spacing:-.045em}header p{margin:10px 0 25px;color:var(--muted)}.inputs,.parts{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-weight:600}label small{font-size:14px;color:var(--muted);font-weight:400}input,select,button{font:inherit}input,select{display:block;width:100%;min-height:48px;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-variant-numeric:tabular-nums}input:focus,select:focus,summary:focus-visible,button:focus-visible{outline:2px solid var(--forest);outline-offset:3px}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--forest);min-height:44px;padding:8px 12px}.example{margin:12px 0 18px}.result{background:var(--forest);color:#fff;border-radius:16px;padding:21px}.result p{margin:0}.amount{font-size:clamp(38px,10vw,56px);font-weight:700;color:var(--accent);letter-spacing:-.045em;line-height:1.2;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.result .parts{border-top:1px solid #ffffff44;margin-top:15px;padding-top:12px;grid-template-columns:repeat(3,1fr)}.parts span{display:block;font-size:14px;color:#e0ede5}.parts strong{display:block;font-size:19px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.totals{margin:13px 0 0;color:var(--muted);overflow-wrap:anywhere}details{border-top:1px solid var(--line);margin-top:22px;padding-top:12px}summary{cursor:pointer;min-height:36px;font-weight:600}details p{color:var(--muted);margin:8px 0}.preset{margin-top:17px}#error{color:#a02a21;margin:0 0 12px}#error:empty{display:none}@media(max-width:355px){main{width:calc(100% - 26px);margin-top:25px}.inputs{gap:8px}.result{padding:16px}.parts strong{font-size:16px}}
+</style>
+</head>
+<body>
+<main>
+  <header><h1>售电提成计算器</h1><p>填本月电量，马上算出全职业务员的提成和税前工资。</p></header>
+  <div class="inputs">
+    <label>老客户本月电量 <small>度</small><input id="old" type="number" inputmode="numeric" min="0" max="1000000000000" step="1" placeholder="0"></label>
+    <label>新客户本月电量 <small>度</small><input id="new" type="number" inputmode="numeric" min="0" max="1000000000000" step="1" placeholder="0"></label>
+  </div>
+  <button type="button" id="example" class="example">试算 10万＋5万度</button>
+  <p id="error" role="alert"></p>
+  <section class="result" aria-label="计算结果" aria-live="polite">
+    <p>当月提成</p><p class="amount" id="commission">¥0.00</p>
+    <div class="parts"><div><span>无责底薪</span><strong id="base">¥2,500.00</strong></div><div><span>月绩效</span><strong id="performance">¥0.00</strong></div><div><span>税前应发</span><strong id="salary">¥2,500.00</strong></div></div>
+  </section>
+  <p id="total" class="totals">本月合计 0 度</p>
+  <label class="preset">工资方案<select id="plan"><option value="prior">底薪2,500＋绩效最高1,500</option><option value="current">原工作簿 · 底薪2,000＋绩效最高10,000</option></select></label>
+  <details><summary>累计电量和计算规则</summary>
+    <label>月绩效考核口径<select id="basis"><option value="fresh">本月新客户结算电量</option><option value="all">本月全部结算电量</option></select></label>
+    <label>上月末本年累计电量 <small>度</small><input id="previous" type="number" inputmode="numeric" min="0" max="1000000000000" step="1" placeholder="0"></label>
+    <p id="rule"></p><p id="bands"></p>
+    <p>上月末累计电量用于提成判档。老客户、新客户均按本月实际结算电量计提。</p>
+  </details>
+</main>
+<script>
+const plans = { current:{base:2000,cap:10000,target:1000000}, prior:{base:2500,cap:1500,target:100000} };
+const thresholds = [0,20000000,40000000,60000000,80000000,Infinity];
+const rates = [30,33,36,39,42];
+const byId = id => document.getElementById(id);
+const integer = new Intl.NumberFormat('zh-CN');
+const money = new Intl.NumberFormat('zh-CN',{style:'currency',currency:'CNY'});
+function calculate(old, fresh, previous, plan, includeExisting) {
+  const total = old + fresh;
+  const segments = rates.map((rate, index) => {
+    const quantity = Math.max(0, Math.min(previous + total, thresholds[index + 1]) - Math.max(previous, thresholds[index]));
+    return {quantity, rate, cents: Math.round(quantity * rate / 100)};
+  });
+  const cents = segments.reduce((sum, part) => sum + part.cents, 0);
+  const assessedVolume = includeExisting ? total : fresh;
+  const performanceCents = Math.round(Math.min(assessedVolume,plan.target)*plan.cap*100/plan.target);
+  return {total, assessedVolume, segments, cents, performanceCents, salaryCents:plan.base*100+performanceCents+cents};
+}
+function render() {
+  const plan = plans[byId('plan').value];
+  const includeExisting = byId('basis').value === 'all';
+  const fields = ['old','new','previous'].map(byId);
+  const values = fields.map(field => field.value === '' ? 0 : field.valueAsNumber);
+  const valid = values.every((value, i) => fields[i].validity.valid && Number.isSafeInteger(value) && value >= 0);
+  byId('error').textContent = valid ? '' : '电量请填 0 或正整数，每项最多 1 万亿度。';
+  byId('base').textContent = money.format(plan.base);
+  byId('rule').textContent = `绩效按${includeExisting ? '本月全部' : '本月新客户'}结算电量 ÷ ${integer.format(plan.target)}度 × ${integer.format(plan.cap)}元计算，最多${integer.format(plan.cap)}元。`;
+  if (!valid) {
+    for (const id of ['commission','performance','salary','total','bands']) byId(id).textContent = '—';
+    return;
+  }
+  const result = calculate(...values, plan, includeExisting);
+  byId('commission').textContent = money.format(result.cents/100);
+  byId('performance').textContent = money.format(result.performanceCents/100);
+  byId('salary').textContent = money.format(result.salaryCents/100);
+  byId('total').textContent = `本月计提 ${integer.format(result.total)} 度 · 月绩效考核 ${integer.format(result.assessedVolume)} 度（${includeExisting ? '本月全部' : '本月新客户'}）`;
+  byId('bands').textContent = result.segments.filter(part => part.quantity).map(part => `${integer.format(part.quantity)}度 × ${part.rate/10}厘 = ${money.format(part.cents/100)}`).join('；') || '本月暂无计提电量。';
+}
+for (const id of ['old','new','previous','plan','basis']) byId(id).addEventListener('input',render);
+byId('example').addEventListener('click',() => {
+  byId('old').value=100000;
+  byId('new').value=50000;
+  byId('previous').value=0;
+  render();
+});
+render();
+</script>
+</body>
+</html>
